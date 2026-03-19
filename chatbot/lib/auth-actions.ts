@@ -131,9 +131,9 @@ export async function resetPassword(newPassword: string, otp: string): Promise<A
 export async function getOAuthUrl(provider: string): Promise<{ url: string } | { error: string }> {
   const insforge = getInsforgeServerClient();
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000');
+  const origin = process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000'
+    : process.env.NEXT_PUBLIC_APP_URL!;
 
   type OAuthProvider = Parameters<typeof insforge.auth.signInWithOAuth>[0]['provider'];
 
