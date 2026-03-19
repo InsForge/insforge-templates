@@ -7,7 +7,7 @@ import { getInsforgeServerClient } from '@/lib/insforge';
 type AuthResult = { success: true } | { success: false; error: string };
 
 export async function getAuthConfig() {
-  const baseUrl = process.env.INSFORGE_BASE_URL!;
+  const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL!;
   const response = await fetch(`${baseUrl}/api/auth/public-config`, { cache: 'no-store' });
 
   if (!response.ok) {

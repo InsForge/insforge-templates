@@ -31,8 +31,8 @@ A minimal-but-polished Next.js chatbot app inspired by the structure and UX goal
 Copy `.env.example` to `.env.local` and fill in:
 
 ```bash
-INSFORGE_BASE_URL=https://your-project.region.insforge.app
-INSFORGE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
+NEXT_PUBLIC_INSFORGE_ANON_KEY=your-anon-key
 INSFORGE_AI_MODEL=openai/gpt-4o-mini
 ```
 

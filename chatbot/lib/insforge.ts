@@ -11,12 +11,12 @@ export function getConfiguredModel() {
 }
 
 function getInsforgeConfig() {
-  const baseUrl = process.env.INSFORGE_BASE_URL;
-  const anonKey = process.env.INSFORGE_ANON_KEY;
+  const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY;
 
   if (!baseUrl || !anonKey) {
     throw new Error(
-      'Missing InsForge configuration. Set INSFORGE_BASE_URL and INSFORGE_ANON_KEY.',
+      'Missing InsForge configuration. Set NEXT_PUBLIC_INSFORGE_URL and NEXT_PUBLIC_INSFORGE_ANON_KEY.',
     );
   }
 
