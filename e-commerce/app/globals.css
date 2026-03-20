@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4efe7;
+  --foreground: #211d18;
+  --card: rgba(255, 251, 246, 0.76);
+  --card-foreground: #211d18;
+  --popover: #fffaf3;
+  --popover-foreground: #211d18;
+  --primary: #211d18;
+  --primary-foreground: #f6f0e6;
+  --secondary: #e2d5c3;
+  --secondary-foreground: #2c241d;
+  --muted: #e8ddd0;
+  --muted-foreground: #6f6255;
+  --accent: #8d9a78;
+  --accent-foreground: #f7f3ea;
+  --destructive: #8b4537;
+  --destructive-foreground: #fff5f0;
+  --border: rgba(54, 42, 31, 0.14);
+  --input: rgba(54, 42, 31, 0.1);
+  --ring: rgba(33, 29, 24, 0.2);
+  --scrollbar-track: rgba(255, 251, 246, 0.58);
+  --scrollbar-thumb: rgba(87, 71, 57, 0.34);
+  --scrollbar-thumb-hover: rgba(87, 71, 57, 0.52);
+  --scrollbar-thumb-border: rgba(255, 250, 243, 0.9);
+  --radius: 1.25rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-cormorant);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth;
+    scrollbar-gutter: stable;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top left, rgba(196, 107, 72, 0.12), transparent 26%),
+      radial-gradient(circle at top right, rgba(141, 154, 120, 0.14), transparent 24%),
+      linear-gradient(180deg, rgba(255, 251, 246, 0.72), rgba(244, 239, 231, 0.96));
+  }
+
+  a {
+    @apply transition-colors;
+  }
+
+  * {
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 250, 243, 0.82),
+      rgba(233, 223, 209, 0.62)
+    );
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(129, 108, 89, 0.5),
+      rgba(87, 71, 57, 0.34)
+    );
+    border: 3px solid var(--scrollbar-thumb-border);
+    border-radius: 999px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      0 6px 18px -14px rgba(33, 29, 24, 0.5);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(129, 108, 89, 0.68),
+      var(--scrollbar-thumb-hover)
+    );
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .glass-panel {
+    @apply rounded-[28px] border border-white/40 bg-card/90 shadow-[0_18px_60px_-24px_rgba(33,29,24,0.28)] backdrop-blur-md;
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(33, 29, 24, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(33, 29, 24, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 92%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
