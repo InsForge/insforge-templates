@@ -11,7 +11,7 @@ export async function getAuthConfig() {
   const response = await fetch(`${baseUrl}/api/auth/public-config`, { cache: 'no-store' });
 
   if (!response.ok) {
-    return { oAuthProviders: [] as string[], requireEmailVerification: false, passwordMinLength: 8 };
+    return { oAuthProviders: [] as string[], requireEmailVerification: false, passwordMinLength: 8, verifyEmailMethod: 'otp' as const, resetPasswordMethod: 'otp' as const };
   }
 
   return response.json() as Promise<{
