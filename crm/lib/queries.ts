@@ -295,15 +295,16 @@ export async function addLeadDocument(
   const filePath = `leads/${leadId}/${Date.now()}-${file.name}`;
 
   const buffer = await file.arrayBuffer();
+  const blob = new Blob([buffer], { type: file.type });
   const { error: uploadError } = await insforge.storage
     .from(UPLOAD_BUCKET)
-    .upload(filePath, buffer, { contentType: file.type });
+    .upload(filePath, blob);
 
   if (uploadError) {
     throw new Error(`Upload failed: ${uploadError.message}`);
   }
 
-  const { data: urlData } = insforge.storage
+  const publicUrl = insforge.storage
     .from(UPLOAD_BUCKET)
     .getPublicUrl(filePath);
 
@@ -312,7 +313,7 @@ export async function addLeadDocument(
     .insert([{
       lead_id: leadId,
       name: file.name,
-      file_url: urlData.publicUrl,
+      file_url: publicUrl,
       file_type: file.type,
       file_size: file.size,
       user_id: userId,
@@ -330,7 +331,7 @@ export async function deleteLeadDocument(
 ) {
   const insforge = getInsforge(accessToken);
 
-  await insforge.storage.from(UPLOAD_BUCKET).remove([filePath]);
+  await insforge.storage.from(UPLOAD_BUCKET).remove(filePath);
 
   const { error } = await insforge.database
     .from('lead_documents')
