@@ -32,7 +32,7 @@ By default, authenticated users land on a dedicated `Developer Guide` page. If y
 
 ## Demo
 
-Demo link coming soon.
+Demo: [3pvjpunq.insforge.site](https://3pvjpunq.insforge.site/)
 
 The template includes a dedicated in-app developer guide, a CRM dashboard, lead and client management, and a seeded pipeline flow for first-run evaluation.
 
