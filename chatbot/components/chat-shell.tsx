@@ -12,6 +12,7 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronsUpDown,
+  EllipsisVertical,
   FileText,
   Loader2,
   LogOut,
@@ -21,6 +22,7 @@ import {
   Paperclip,
   Sparkles,
   SunMedium,
+  Trash2,
   UserRound,
   X,
 } from 'lucide-react';
@@ -510,6 +512,59 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
     setAccountMenuOpen(false);
   }
 
+  const [chatMenuOpen, setChatMenuOpen] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!chatMenuOpen) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target;
+      if (target instanceof Node) {
+        const menu = document.querySelector(`[data-chat-menu="${chatMenuOpen}"]`);
+        if (menu?.contains(target)) return;
+      }
+      setChatMenuOpen(null);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setChatMenuOpen(null);
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [chatMenuOpen]);
+
+  async function handleDeleteChat(chatId: string) {
+    if (!ownerInfo) return;
+
+    setChatMenuOpen(null);
+
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}?${ownerInfo.queryParam}`,
+        { method: 'DELETE' },
+      );
+
+      if (!response.ok) {
+        toast.error(await getErrorMessage(response));
+        return;
+      }
+
+      setChats((current) => current.filter((c) => c.id !== chatId));
+
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+      }
+    } catch {
+      toast.error('Unable to delete the chat.');
+    }
+  }
+
   async function handleFileSelect(files: FileList | null) {
     if (!files || files.length === 0) return;
 
@@ -776,20 +831,47 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                 <div className="px-2 py-2 text-muted-foreground text-xs">{group.label}</div>
                 <div className="space-y-1">
                   {group.chats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      className={cn(
-                        'w-full rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-muted',
-                        chat.id === activeChatId ? 'bg-muted text-foreground' : 'text-foreground/80',
-                      )}
-                      type="button"
-                      onClick={() => void handleSelectChat(chat.id)}
-                    >
-                      <div className="truncate">{chat.title}</div>
-                      <div className="truncate text-muted-foreground text-xs">
-                        {formatChatTimestamp(chat.last_message_at)}
-                      </div>
-                    </button>
+                    <div key={chat.id} className="group relative">
+                      <button
+                        className={cn(
+                          'w-full rounded-lg px-2 py-2 pr-8 text-left text-sm transition-colors hover:bg-muted',
+                          chat.id === activeChatId ? 'bg-muted text-foreground' : 'text-foreground/80',
+                        )}
+                        type="button"
+                        onClick={() => void handleSelectChat(chat.id)}
+                      >
+                        <div className="truncate">{chat.title}</div>
+                        <div className="truncate text-muted-foreground text-xs">
+                          {formatChatTimestamp(chat.last_message_at)}
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-1 -translate-y-1/2 rounded-md p-1 opacity-0 transition-opacity hover:bg-muted-foreground/10 group-hover:opacity-100 data-[open=true]:opacity-100"
+                        data-open={chatMenuOpen === chat.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setChatMenuOpen(chatMenuOpen === chat.id ? null : chat.id);
+                        }}
+                      >
+                        <EllipsisVertical className="size-3.5 text-muted-foreground" />
+                      </button>
+                      {chatMenuOpen === chat.id ? (
+                        <div data-chat-menu={chat.id} className="absolute right-0 top-full z-50 mt-1 w-36 rounded-md border bg-popover p-1 shadow-md">
+                          <button
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-muted"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleDeleteChat(chat.id);
+                            }}
+                          >
+                            <Trash2 className="size-3.5" />
+                            Delete
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   ))}
                 </div>
               </section>

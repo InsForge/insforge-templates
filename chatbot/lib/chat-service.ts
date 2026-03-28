@@ -219,6 +219,27 @@ export async function listChats(owner: ChatOwner, accessToken?: string | null) {
   return (data as ChatSummary[] | null) ?? [];
 }
 
+export async function deleteChat(
+  owner: ChatOwner,
+  chatId: string,
+  accessToken?: string | null,
+) {
+  const safeOwner = ensureOwner(owner);
+  const chat = await getChatRow(safeOwner, chatId, accessToken);
+
+  if (!chat) {
+    throw new Error('Chat not found.');
+  }
+
+  const insforge = getClient(accessToken);
+  const { error } = await insforge.database
+    .from('chat_sessions')
+    .delete()
+    .eq('id', chatId);
+
+  assertNoDatabaseError(error, 'Unable to delete the chat.');
+}
+
 export async function getChatDetail(
   owner: ChatOwner,
   chatId: string,
