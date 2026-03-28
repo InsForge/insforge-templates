@@ -4,7 +4,7 @@ A developer-friendly CRM starter built with Next.js, shadcn/ui, and InsForge.
 
 **[Features](#features)** · **[Demo](#demo)** · **[Quick launch](#quick-launch)** · **[Step-by-step setup](#step-by-step-setup)** · **[Deploy](#deploy-with-vercel)** · **[Customization](#common-customizations)**
 
-  
+![CRM starter preview](public/crm-starter-preview.png)
 
 
 An authenticated CRM starter built with Next.js, shadcn/ui, and InsForge. It ships with a visual sales pipeline, lead activity tracking, client conversion flows, project management, and enough structure for developers to adapt it into their own CRM without rebuilding auth, database access, or storage from scratch.
@@ -35,8 +35,6 @@ By default, authenticated users land on a dedicated `Developer Guide` page. If y
 Demo: [3pvjpunq.insforge.site](https://3pvjpunq.insforge.site/)
 
 The template includes a dedicated in-app developer guide, a CRM dashboard, lead and client management, and a seeded pipeline flow for first-run evaluation.
-
-![CRM starter preview](public/crm-starter-preview.png)
 
 ---
 

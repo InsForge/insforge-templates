@@ -1,5 +1,4 @@
 <a href="https://insforge.dev">
-  <img alt="InsForge Chatbot template preview" src="./public/chatbot-readme-cover.png" />
   <h1 align="center">InsForge Chatbot Starter</h1>
 </a>
 
@@ -9,12 +8,16 @@
 
 <p align="center">
   <a href="#features"><strong>Features</strong></a> ·
+  <a href="#demo"><strong>Demo</strong></a> ·
   <a href="#quick-launch"><strong>Quick Launch</strong></a> ·
   <a href="#run-locally"><strong>Run locally</strong></a> ·
   <a href="#vercel-ai-gateway"><strong>Vercel AI Gateway</strong></a> ·
   <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
   <a href="#first-try"><strong>First Try</strong></a>
 </p>
+
+<img alt="InsForge Chatbot template preview" src="./public/chatbot-readme-cover.png" />
+
 <br/>
 
 ## Features
@@ -26,6 +29,12 @@
 - Multi-provider model selection with `provider/model` IDs
 - [shadcn/ui](https://ui.shadcn.com) components
 - Styling with [Tailwind CSS](https://tailwindcss.com)
+
+## Demo
+
+Demo: [insforge-chatbot-starter.vercel.app](https://insforge-chatbot-starter.vercel.app/)
+
+The starter includes a simple first-try chat experience, persisted history, file uploads, authentication, and optional routing through the Vercel AI Gateway.
 
 ## Quick Launch
 
