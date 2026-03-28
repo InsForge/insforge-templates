@@ -651,6 +651,11 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
           return;
         }
 
+        if (event.type === 'warning') {
+          toast.warning(event.message);
+          return;
+        }
+
         if (event.type === 'error') {
           streamError = event.error;
         }

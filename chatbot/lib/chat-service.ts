@@ -8,6 +8,8 @@ import type {
   SendMessageResponse,
 } from '@/lib/types';
 import { DEFAULT_SYSTEM_PROMPT, getConfiguredModel, getInsforgeServerClient, createInsforgeServerClient } from '@/lib/insforge';
+import { createAIProvider, getAIProviderName } from '@/lib/ai';
+import type { UserContentPart, FileParserOptions } from '@/lib/ai';
 
 type ChatSessionRow = ChatSummary & {
   visitor_id: string | null;
@@ -27,19 +29,6 @@ type AttachmentRow = {
   mime_type: string;
 };
 
-type UserContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image_url'; image_url: { url: string } }
-  | { type: 'file'; file: { filename: string; file_data: string } };
-
-type FileParserOptions =
-  | {
-      enabled: true;
-      pdf: {
-        engine: 'pdf-text';
-      };
-    }
-  | undefined;
 
 const INLINE_TEXT_MIME_TYPES = new Set([
   'text/plain',
@@ -345,7 +334,7 @@ type PreparedMessageRequest = {
   text: string;
   requestedModel: string;
   token?: string | null;
-  insforge: InsforgeClient;
+  insforgeClient: InsforgeClient;
   chat: ChatSessionRow;
   attachments: Attachment[];
   nextSortOrder: number;
@@ -412,7 +401,7 @@ async function prepareMessageRequest(input: {
     text,
     requestedModel,
     token,
-    insforge,
+    insforgeClient: insforge,
     chat,
     attachments,
     nextSortOrder,
@@ -470,31 +459,6 @@ async function persistCompletedMessage(input: {
   };
 }
 
-function extractDeltaText(content: unknown) {
-  if (typeof content === 'string') {
-    return content;
-  }
-
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        if (
-          part &&
-          typeof part === 'object' &&
-          'text' in part &&
-          typeof part.text === 'string'
-        ) {
-          return part.text;
-        }
-
-        return '';
-      })
-      .join('');
-  }
-
-  return '';
-}
-
 export async function streamMessage(input: {
   owner: ChatOwner;
   chatId?: string | null;
@@ -518,7 +482,19 @@ export async function streamMessage(input: {
         try {
           writeEvent({ type: 'chat', chat: prepared.chat });
 
-          const stream = await prepared.insforge.ai.chat.completions.create({
+          const providerName = getAIProviderName();
+          const provider = await createAIProvider(prepared.insforgeClient);
+
+          if (providerName !== 'insforge' && prepared.fileParser) {
+            writeEvent({
+              type: 'warning',
+              message:
+                'PDF file parsing is only supported with the InsForge AI provider. ' +
+                'Attached PDFs may not be fully processed by the current provider.',
+            });
+          }
+
+          const stream = await provider.streamCompletion({
             model: prepared.requestedModel,
             messages: [
               {
@@ -531,29 +507,17 @@ export async function streamMessage(input: {
                 content: prepared.nextUserContent,
               },
             ],
-            ...(prepared.fileParser && { fileParser: prepared.fileParser }),
-            stream: true,
+            fileParser: prepared.fileParser,
           });
 
-          for await (const chunk of stream as AsyncIterable<{
-            choices?: Array<{
-              delta?: {
-                content?: unknown;
-              };
-            }>;
-          }>) {
-            const deltaText = extractDeltaText(chunk.choices?.[0]?.delta?.content);
-            if (!deltaText) {
-              continue;
-            }
-
+          for await (const deltaText of stream) {
             assistantText += deltaText;
             writeEvent({ type: 'delta', content: deltaText });
           }
 
           if (!assistantText.trim()) {
             throw new Error(
-              'InsForge returned an empty response. Verify the configured model is enabled for this project.',
+              'The AI provider returned an empty response. Verify the configured model is available.',
             );
           }
 
@@ -575,7 +539,7 @@ export async function streamMessage(input: {
             error:
               error instanceof Error
                 ? error.message
-                : 'InsForge AI could not complete the request.',
+                : 'The AI provider could not complete the request.',
           });
           controller.close();
         }
