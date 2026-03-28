@@ -1,5 +1,4 @@
 import { GettingStarted } from '@/components/getting-started';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAccessToken } from '@/lib/auth-cookies';
 import { getClients, getLeads } from '@/lib/queries';
 
@@ -27,21 +26,6 @@ export default async function DeveloperGuidePage() {
         hasLeads={leadsResult.count > 0}
         hasClients={clientsResult.count > 0}
       />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Suggested first edits</CardTitle>
-          <CardDescription>
-            If you are adapting this starter for your own CRM, these are usually the highest-leverage changes.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>1. Replace the seeded lead stages and sources with your own sales process.</p>
-          <p>2. Add or rename fields in <code>migrations/db_init.sql</code> and <code>lib/queries.ts</code>.</p>
-          <p>3. Update the sidebar and dashboard metrics to reflect your team&apos;s workflow.</p>
-          <p>4. Review RLS policies before introducing shared pipelines or multi-user collaboration.</p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

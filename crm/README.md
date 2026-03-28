@@ -2,7 +2,7 @@
 
 A developer-friendly CRM starter built with Next.js, shadcn/ui, and InsForge.
 
-**[Features](#features)** · **[Demo](#demo)** · **[Architecture](#architecture)** · **[Quick launch](#quick-launch)** · **[Step-by-step setup](#step-by-step-setup)**
+**[Features](#features)** · **[Demo](#demo)** · **[Quick launch](#quick-launch)** · **[Step-by-step setup](#step-by-step-setup)** · **[Deploy](#deploy-with-vercel)** · **[Customization](#common-customizations)**
 
   
 
@@ -36,7 +36,7 @@ Demo link coming soon.
 
 The template includes a dedicated in-app developer guide, a CRM dashboard, lead and client management, and a seeded pipeline flow for first-run evaluation.
 
-CRM starter preview
+![CRM starter preview](public/crm-starter-preview.png)
 
 ---
 

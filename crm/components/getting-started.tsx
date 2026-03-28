@@ -51,11 +51,6 @@ export function GettingStarted({ hasLeads, hasClients }: GettingStartedProps) {
                 Create a lead <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <p>
-              Behind the scenes this calls <code>/api/seed</code>, which triggers the
-              <code> seed_crm_defaults </code>
-              RPC defined in <code>migrations/db_init.sql</code>.
-            </p>
           </CardContent>
         </Card>
 

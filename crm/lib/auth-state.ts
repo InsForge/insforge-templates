@@ -33,10 +33,16 @@ async function refreshAuthenticatedUser(refreshToken: string) {
     return null;
   }
 
-  return data.user;
+  return {
+    accessToken: data.accessToken,
+    user: data.user,
+  };
 }
 
-export async function getCurrentViewer(): Promise<AuthViewer> {
+export async function getAuthenticatedSession(): Promise<{
+  viewer: AuthViewer;
+  accessToken: string | null;
+}> {
   const accessToken = await getAccessToken();
   const refreshToken = await getRefreshToken();
 
@@ -45,14 +51,31 @@ export async function getCurrentViewer(): Promise<AuthViewer> {
     const { data, error } = await insforge.auth.getCurrentUser();
 
     if (!error && data.user) {
-      return mapUserToViewer(data.user);
+      return {
+        viewer: mapUserToViewer(data.user),
+        accessToken,
+      };
     }
   }
 
   if (refreshToken) {
-    const user = await refreshAuthenticatedUser(refreshToken);
-    return mapUserToViewer(user);
+    const refreshed = await refreshAuthenticatedUser(refreshToken);
+
+    if (refreshed) {
+      return {
+        viewer: mapUserToViewer(refreshed.user),
+        accessToken: refreshed.accessToken,
+      };
+    }
   }
 
-  return VISITOR_VIEWER;
+  return {
+    viewer: VISITOR_VIEWER,
+    accessToken: null,
+  };
+}
+
+export async function getCurrentViewer(): Promise<AuthViewer> {
+  const session = await getAuthenticatedSession();
+  return session.viewer;
 }
