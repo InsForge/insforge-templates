@@ -28,6 +28,7 @@ import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { toast } from 'sonner';
+import { ChatEmptyState } from '@/components/chat-empty-state';
 import { ChatMarkdown } from '@/components/chat-markdown';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -174,19 +175,6 @@ function InsforgeBadge() {
         className="h-8 w-auto rounded-md"
       />
     </a>
-  );
-}
-
-function EmptyGreeting() {
-  return (
-    <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col justify-center px-4 md:mt-16 md:px-8">
-      <div className="font-semibold text-xl md:text-2xl">
-        Hello there!
-      </div>
-      <div className="text-muted-foreground text-xl md:text-2xl">
-        How can I help you today?
-      </div>
-    </div>
   );
 }
 
@@ -824,22 +812,7 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : messages.length === 0 ? (
-              <>
-                <EmptyGreeting />
-                <div className="grid w-full gap-2 sm:grid-cols-2">
-                  {SUGGESTED_PROMPTS.map((prompt) => (
-                    <button
-                      key={prompt.title}
-                      className="rounded-xl border px-4 py-3 text-left text-sm transition-colors hover:bg-muted"
-                      type="button"
-                      onClick={() => void handleSendMessage(prompt.prompt)}
-                    >
-                      <div className="font-medium">{prompt.title}</div>
-                      <div className="mt-1 text-muted-foreground">{prompt.prompt}</div>
-                    </button>
-                  ))}
-                </div>
-              </>
+              <ChatEmptyState onPromptSelect={setInput} />
             ) : (
               <>
                 {messages.map((message) => (
