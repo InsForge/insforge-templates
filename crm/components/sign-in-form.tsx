@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { OAuthProviderButtons } from '@/components/oauth-provider-buttons';
 import { Button } from '@/components/ui/button';
 import { getOAuthUrl, signIn } from '@/lib/auth-actions';
+import { DEFAULT_LANDING_ROUTE } from '@/lib/constants';
 
 export function SignInForm({ providers }: { providers: string[] }) {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
     const result = await signIn(email.trim(), password);
 
     if (result.success) {
-      window.location.href = '/';
+      window.location.href = DEFAULT_LANDING_ROUTE;
       return;
     } else {
       toast.error(result.error);

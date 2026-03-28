@@ -1,4 +1,5 @@
 export const UPLOAD_BUCKET = 'lead-documents';
+export const DEFAULT_LANDING_ROUTE = '/developer-guide';
 export const DEFAULT_ITEMS_PER_PAGE = 10;
 export const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
 

@@ -1,11 +1,11 @@
 import { getAccessToken } from '@/lib/auth-cookies';
 import { getLeads, getClients, getLeadStages } from '@/lib/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target, Users, KanbanSquare, Briefcase } from 'lucide-react';
+import { Target, Users, KanbanSquare } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default async function DashboardPage() {
+export default async function CRMOverviewPage() {
   const token = await getAccessToken();
 
   const [leadsResult, clientsResult, stages] = await Promise.all([

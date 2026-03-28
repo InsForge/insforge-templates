@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  BookOpen,
   LayoutDashboard,
   Target,
   KanbanSquare,
@@ -15,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth-actions';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/developer-guide', label: 'Developer Guide', icon: BookOpen },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/leads', label: 'Leads', icon: Target },
   { href: '/leads/pipeline', label: 'Pipeline', icon: KanbanSquare },
   { href: '/clients', label: 'Clients', icon: Users },
@@ -37,8 +39,10 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const isActive =
-            item.href === '/'
-              ? pathname === '/'
+            item.href === '/developer-guide'
+                ? pathname === '/developer-guide'
+              : item.href === '/dashboard'
+                ? pathname === '/dashboard'
               : pathname.startsWith(item.href);
 
           return (
