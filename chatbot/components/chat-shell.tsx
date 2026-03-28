@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useCallback, useRef, useState, type RefObject } from 'react';
 import { toast } from 'sonner';
 import { ChatEmptyState } from '@/components/chat-empty-state';
 import { ChatMarkdown } from '@/components/chat-markdown';
@@ -320,6 +320,20 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
   const activeChat = chats.find((chat) => chat.id === activeChatId) ?? null;
   const groupedChats = groupChats(chats);
 
+  const syncChatIdToUrl = useCallback((chatId: string | null) => {
+    const url = new URL(window.location.href);
+    if (chatId) {
+      url.searchParams.set('chat', chatId);
+    } else {
+      url.searchParams.delete('chat');
+    }
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
+  useEffect(() => {
+    syncChatIdToUrl(activeChatId);
+  }, [activeChatId, syncChatIdToUrl]);
+
   useEffect(() => {
     if (!initialViewer.isAuthenticated) {
       setVisitorId(getOrCreateVisitorId());
@@ -365,9 +379,13 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
           return;
         }
 
-        const firstChatId = nextChats[0].id;
-        setActiveChatId(firstChatId);
-        await loadChat(firstChatId, () => cancelled);
+        const urlChatId = new URLSearchParams(window.location.search).get('chat');
+        const targetChatId =
+          urlChatId && nextChats.some((c) => c.id === urlChatId)
+            ? urlChatId
+            : nextChats[0].id;
+        setActiveChatId(targetChatId);
+        await loadChat(targetChatId, () => cancelled);
 
         if (!cancelled) setIsBootstrapping(false);
       } catch (bootstrapError) {
@@ -843,11 +861,11 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                       <div
                         className={cn({
                           'w-full': message.role === 'assistant',
-                          'max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]':
+                          'max-w-[calc(100%-3.5rem)] sm:max-w-[min(fit-content,80%)]':
                             message.role === 'user',
                         })}
                       >
-                        <div className="mb-1 text-muted-foreground text-xs">
+                        <div className={cn('mb-1 text-muted-foreground text-xs', message.role === 'user' && 'text-right')}>
                           {formatMessageTimestamp(message.created_at)}
                         </div>
                         {message.attachments && message.attachments.length > 0 ? (
@@ -885,7 +903,7 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                           className={cn(
                             'text-sm leading-7',
                             message.role === 'user'
-                              ? 'w-fit rounded-2xl bg-[#006cff] px-3 py-2 text-right text-white'
+                              ? 'w-fit rounded-2xl bg-foreground px-3 py-2 text-right text-background'
                               : 'bg-transparent px-0 py-0 text-left',
                           )}
                         >
@@ -901,6 +919,12 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                           )}
                         </div>
                       </div>
+
+                      {message.role === 'user' ? (
+                        <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted ring-1 ring-border">
+                          <UserRound className="size-3.5 text-muted-foreground" />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ))}
