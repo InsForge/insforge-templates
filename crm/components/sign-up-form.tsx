@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { OAuthProviderButtons } from '@/components/oauth-provider-buttons';
 import { Button } from '@/components/ui/button';
 import { getOAuthUrl, resendVerification, signUp, verifyEmail } from '@/lib/auth-actions';
+import { DEFAULT_LANDING_ROUTE } from '@/lib/constants';
 
 export function SignUpForm({
   providers,
@@ -33,7 +34,7 @@ export function SignUpForm({
         setStep('verify');
         toast.success('Check your email for a verification code.');
       } else {
-        window.location.href = '/';
+        window.location.href = DEFAULT_LANDING_ROUTE;
       }
     } else {
       toast.error(result.error);
@@ -49,7 +50,7 @@ export function SignUpForm({
     const result = await verifyEmail(email.trim(), otp.trim());
 
     if (result.success) {
-      window.location.href = '/';
+      window.location.href = DEFAULT_LANDING_ROUTE;
     } else {
       toast.error(result.error);
     }
