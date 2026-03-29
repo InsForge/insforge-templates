@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { STORE_DESCRIPTION, STORE_NAME } from '@/lib/constants';
@@ -39,6 +40,7 @@ export default function RootLayout({
       >
         {children}
         <Toaster position="top-right" richColors />
+        <Analytics />
       </body>
     </html>
   );
