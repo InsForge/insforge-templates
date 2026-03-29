@@ -108,7 +108,6 @@ export function AccountDropdown({
             <form action={signOut}>
               <button
                 className="flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left text-sm text-foreground hover:bg-muted/70"
-                onClick={() => setIsOpen(false)}
                 role="menuitem"
                 type="submit"
               >
