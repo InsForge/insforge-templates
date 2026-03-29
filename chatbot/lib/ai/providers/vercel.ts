@@ -50,32 +50,6 @@ function buildByokOptions(): Record<string, Record<string, Array<{ apiKey: strin
   return { byok } as Record<string, Record<string, Array<{ apiKey: string }>>>;
 }
 
-const PROVIDER_KEY_ENV: Record<string, string> = {
-  openai: 'OPENAI_API_KEY',
-  anthropic: 'ANTHROPIC_API_KEY',
-  google: 'GOOGLE_API_KEY',
-  'x-ai': 'XAI_API_KEY',
-  deepseek: 'DEEPSEEK_API_KEY',
-  minimax: 'MINIMAX_API_KEY',
-};
-
-/**
- * Fail fast if the selected model's provider has no API key configured.
- */
-function assertProviderKeyExists(modelId: string) {
-  if (!modelId.includes('/')) return;
-
-  const provider = modelId.split('/')[0];
-  const envName = PROVIDER_KEY_ENV[provider];
-
-  if (envName && !process.env[envName]) {
-    throw new Error(
-      `Model "${modelId}" requires ${envName} to be set. ` +
-      `Add it to your .env.local to use this provider.`,
-    );
-  }
-}
-
 /**
  * Convert InsForge-shaped multipart content to Vercel AI SDK format.
  */
@@ -120,8 +94,6 @@ function convertContent(
 export function createVercelAIProvider(): AIProvider {
   return {
     async streamCompletion(params: StreamCompletionParams) {
-      assertProviderKeyExists(params.model);
-
       const gw = getGateway();
       const model = gw(params.model);
 
