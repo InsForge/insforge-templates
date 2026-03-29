@@ -1,5 +1,11 @@
 create extension if not exists pgcrypto;
 
+insert into storage.buckets (name, public)
+values ('chat-attachments', true)
+on conflict (name) do update
+set public = excluded.public,
+    updated_at = now();
+
 create table if not exists public.chat_sessions (
   id uuid primary key default gen_random_uuid(),
   visitor_id uuid,

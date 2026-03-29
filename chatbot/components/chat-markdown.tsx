@@ -182,9 +182,24 @@ function parseMarkdown(content: string): Block[] {
     if (isUnorderedListItem(trimmed)) {
       const items: string[] = [];
 
-      while (index < lines.length && isUnorderedListItem(lines[index] ?? '')) {
-        items.push(stripListMarker(lines[index] ?? ''));
-        index += 1;
+      while (index < lines.length) {
+        const currentLine = lines[index] ?? '';
+        const currentTrimmed = currentLine.trim();
+
+        if (isUnorderedListItem(currentLine)) {
+          items.push(stripListMarker(currentLine));
+          index += 1;
+          continue;
+        }
+
+        // Models often insert blank lines between list items. Keep consuming the
+        // list if the next non-empty line is another unordered item.
+        if (currentTrimmed === '' && isUnorderedListItem(lines[index + 1] ?? '')) {
+          index += 1;
+          continue;
+        }
+
+        break;
       }
 
       blocks.push({ type: 'unordered-list', items });
@@ -194,9 +209,24 @@ function parseMarkdown(content: string): Block[] {
     if (isOrderedListItem(trimmed)) {
       const items: string[] = [];
 
-      while (index < lines.length && isOrderedListItem(lines[index] ?? '')) {
-        items.push(stripListMarker(lines[index] ?? ''));
-        index += 1;
+      while (index < lines.length) {
+        const currentLine = lines[index] ?? '';
+        const currentTrimmed = currentLine.trim();
+
+        if (isOrderedListItem(currentLine)) {
+          items.push(stripListMarker(currentLine));
+          index += 1;
+          continue;
+        }
+
+        // Models often insert blank lines between list items. Keep consuming the
+        // list if the next non-empty line is another ordered item.
+        if (currentTrimmed === '' && isOrderedListItem(lines[index + 1] ?? '')) {
+          index += 1;
+          continue;
+        }
+
+        break;
       }
 
       blocks.push({ type: 'ordered-list', items });

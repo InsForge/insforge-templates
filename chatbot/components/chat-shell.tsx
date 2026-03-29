@@ -12,6 +12,7 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronsUpDown,
+  EllipsisVertical,
   FileText,
   Loader2,
   LogOut,
@@ -21,13 +22,15 @@ import {
   Paperclip,
   Sparkles,
   SunMedium,
+  Trash2,
   UserRound,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useCallback, useRef, useState, type RefObject } from 'react';
 import { toast } from 'sonner';
+import { ChatEmptyState } from '@/components/chat-empty-state';
 import { ChatMarkdown } from '@/components/chat-markdown';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -177,19 +180,6 @@ function InsforgeBadge() {
   );
 }
 
-function EmptyGreeting() {
-  return (
-    <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col justify-center px-4 md:mt-16 md:px-8">
-      <div className="font-semibold text-xl md:text-2xl">
-        Hello there!
-      </div>
-      <div className="text-muted-foreground text-xl md:text-2xl">
-        How can I help you today?
-      </div>
-    </div>
-  );
-}
-
 function getViewerDisplayName(viewer: AuthViewer) {
   if (viewer.name) return viewer.name;
   if (viewer.email) return viewer.email;
@@ -332,6 +322,20 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
   const activeChat = chats.find((chat) => chat.id === activeChatId) ?? null;
   const groupedChats = groupChats(chats);
 
+  const syncChatIdToUrl = useCallback((chatId: string | null) => {
+    const url = new URL(window.location.href);
+    if (chatId) {
+      url.searchParams.set('chat', chatId);
+    } else {
+      url.searchParams.delete('chat');
+    }
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
+  useEffect(() => {
+    syncChatIdToUrl(activeChatId);
+  }, [activeChatId, syncChatIdToUrl]);
+
   useEffect(() => {
     if (!initialViewer.isAuthenticated) {
       setVisitorId(getOrCreateVisitorId());
@@ -377,9 +381,13 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
           return;
         }
 
-        const firstChatId = nextChats[0].id;
-        setActiveChatId(firstChatId);
-        await loadChat(firstChatId, () => cancelled);
+        const urlChatId = new URLSearchParams(window.location.search).get('chat');
+        const targetChatId =
+          urlChatId && nextChats.some((c) => c.id === urlChatId)
+            ? urlChatId
+            : nextChats[0].id;
+        setActiveChatId(targetChatId);
+        await loadChat(targetChatId, () => cancelled);
 
         if (!cancelled) setIsBootstrapping(false);
       } catch (bootstrapError) {
@@ -502,6 +510,59 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
     setError(null);
     setSidebarOpen(false);
     setAccountMenuOpen(false);
+  }
+
+  const [chatMenuOpen, setChatMenuOpen] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!chatMenuOpen) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target;
+      if (target instanceof Node) {
+        const menu = document.querySelector(`[data-chat-menu="${chatMenuOpen}"]`);
+        if (menu?.contains(target)) return;
+      }
+      setChatMenuOpen(null);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setChatMenuOpen(null);
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [chatMenuOpen]);
+
+  async function handleDeleteChat(chatId: string) {
+    if (!ownerInfo) return;
+
+    setChatMenuOpen(null);
+
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}?${ownerInfo.queryParam}`,
+        { method: 'DELETE' },
+      );
+
+      if (!response.ok) {
+        toast.error(await getErrorMessage(response));
+        return;
+      }
+
+      setChats((current) => current.filter((c) => c.id !== chatId));
+
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+      }
+    } catch {
+      toast.error('Unable to delete the chat.');
+    }
   }
 
   async function handleFileSelect(files: FileList | null) {
@@ -663,6 +724,11 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
           return;
         }
 
+        if (event.type === 'warning') {
+          toast.warning(event.message);
+          return;
+        }
+
         if (event.type === 'error') {
           streamError = event.error;
         }
@@ -765,20 +831,47 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                 <div className="px-2 py-2 text-muted-foreground text-xs">{group.label}</div>
                 <div className="space-y-1">
                   {group.chats.map((chat) => (
-                    <button
-                      key={chat.id}
-                      className={cn(
-                        'w-full rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-muted',
-                        chat.id === activeChatId ? 'bg-muted text-foreground' : 'text-foreground/80',
-                      )}
-                      type="button"
-                      onClick={() => void handleSelectChat(chat.id)}
-                    >
-                      <div className="truncate">{chat.title}</div>
-                      <div className="truncate text-muted-foreground text-xs">
-                        {formatChatTimestamp(chat.last_message_at)}
-                      </div>
-                    </button>
+                    <div key={chat.id} className="group relative">
+                      <button
+                        className={cn(
+                          'w-full rounded-lg px-2 py-2 pr-8 text-left text-sm transition-colors hover:bg-muted',
+                          chat.id === activeChatId ? 'bg-muted text-foreground' : 'text-foreground/80',
+                        )}
+                        type="button"
+                        onClick={() => void handleSelectChat(chat.id)}
+                      >
+                        <div className="truncate">{chat.title}</div>
+                        <div className="truncate text-muted-foreground text-xs">
+                          {formatChatTimestamp(chat.last_message_at)}
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-1 -translate-y-1/2 rounded-md p-1 opacity-0 transition-opacity hover:bg-muted-foreground/10 group-hover:opacity-100 data-[open=true]:opacity-100"
+                        data-open={chatMenuOpen === chat.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setChatMenuOpen(chatMenuOpen === chat.id ? null : chat.id);
+                        }}
+                      >
+                        <EllipsisVertical className="size-3.5 text-muted-foreground" />
+                      </button>
+                      {chatMenuOpen === chat.id ? (
+                        <div data-chat-menu={chat.id} className="absolute right-0 top-full z-50 mt-1 w-36 rounded-md border bg-popover p-1 shadow-md">
+                          <button
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-muted"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleDeleteChat(chat.id);
+                            }}
+                          >
+                            <Trash2 className="size-3.5" />
+                            Delete
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   ))}
                 </div>
               </section>
@@ -824,22 +917,7 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : messages.length === 0 ? (
-              <>
-                <EmptyGreeting />
-                <div className="grid w-full gap-2 sm:grid-cols-2">
-                  {SUGGESTED_PROMPTS.map((prompt) => (
-                    <button
-                      key={prompt.title}
-                      className="rounded-xl border px-4 py-3 text-left text-sm transition-colors hover:bg-muted"
-                      type="button"
-                      onClick={() => void handleSendMessage(prompt.prompt)}
-                    >
-                      <div className="font-medium">{prompt.title}</div>
-                      <div className="mt-1 text-muted-foreground">{prompt.prompt}</div>
-                    </button>
-                  ))}
-                </div>
-              </>
+              <ChatEmptyState onPromptSelect={setInput} />
             ) : (
               <>
                 {messages.map((message) => (
@@ -865,11 +943,11 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                       <div
                         className={cn({
                           'w-full': message.role === 'assistant',
-                          'max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]':
+                          'max-w-[calc(100%-3.5rem)] sm:max-w-[min(fit-content,80%)]':
                             message.role === 'user',
                         })}
                       >
-                        <div className="mb-1 text-muted-foreground text-xs">
+                        <div className={cn('mb-1 text-muted-foreground text-xs', message.role === 'user' && 'text-right')}>
                           {formatMessageTimestamp(message.created_at)}
                         </div>
                         {message.attachments && message.attachments.length > 0 ? (
@@ -907,7 +985,7 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                           className={cn(
                             'text-sm leading-7',
                             message.role === 'user'
-                              ? 'w-fit rounded-2xl bg-[#006cff] px-3 py-2 text-right text-white'
+                              ? 'w-fit rounded-2xl bg-foreground px-3 py-2 text-right text-background'
                               : 'bg-transparent px-0 py-0 text-left',
                           )}
                         >
@@ -923,6 +1001,12 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
                           )}
                         </div>
                       </div>
+
+                      {message.role === 'user' ? (
+                        <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted ring-1 ring-border">
+                          <UserRound className="size-3.5 text-muted-foreground" />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ))}

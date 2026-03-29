@@ -39,7 +39,8 @@ export type ChatStreamEvent =
   | { type: 'chat'; chat: ChatSummary }
   | { type: 'delta'; content: string }
   | { type: 'done'; payload: SendMessageResponse }
-  | { type: 'error'; error: string };
+  | { type: 'error'; error: string }
+  | { type: 'warning'; message: string };
 
 export interface ChatOwner {
   userId?: string;
