@@ -10,6 +10,7 @@ import './App.css';
 import { ResetPasswordForm } from './components/reset-password-form';
 import { SignInForm } from './components/sign-in-form';
 import { SignUpForm } from './components/sign-up-form';
+import { ThemeToggle } from './components/theme-toggle';
 import { exchangeAuthCode, getAuthConfig } from './lib/auth';
 import { useAuth } from './lib/auth-context';
 
@@ -68,10 +69,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
 
         <footer className="app-footer">
-          Powered by{' '}
-          <a href="https://insforge.dev" target="_blank" rel="noreferrer">
-            InsForge
-          </a>
+          <span className="app-footer__text">
+            Powered by{' '}
+            <a href="https://insforge.dev" target="_blank" rel="noreferrer">
+              InsForge
+            </a>
+          </span>
+          <ThemeToggle />
         </footer>
       </div>
     </main>
