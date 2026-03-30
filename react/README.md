@@ -11,6 +11,10 @@
   <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
   <a href="#environment-variables"><strong>Environment Variables</strong></a>
 </p>
+
+<p align="center">
+  <img src="react-starter.png" alt="React InsForge Starter" />
+</p>
 <br />
 
 ## Features
