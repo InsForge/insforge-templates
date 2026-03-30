@@ -175,9 +175,11 @@ export async function exchangeAuthCode(code: string): Promise<AuthResult> {
     return { success: false, error: error?.message ?? "Code exchange failed." };
   }
 
-  if (data.refreshToken) {
-    await setAuthCookies(data.accessToken, data.refreshToken);
+  if (!data.refreshToken) {
+    return { success: false, error: "Unable to complete sign-in. Missing refresh token." };
   }
+
+  await setAuthCookies(data.accessToken, data.refreshToken);
 
   return { success: true };
 }
