@@ -7,7 +7,7 @@ import { addToCartAction } from '@/lib/store-actions';
 import { Button } from '@/components/ui/button';
 
 function isRedirectError(error: unknown): boolean {
-  return error instanceof Error && error.message === 'NEXT_REDIRECT';
+  return (error as any)?.digest?.startsWith('NEXT_REDIRECT');
 }
 
 export function AddToCartButton({
