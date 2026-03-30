@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color-scheme: light;
+    font-family: "Instrument Sans", "Inter", system-ui, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
@@ -15,6 +16,18 @@
   }
 
   body {
-    @apply m-0 min-w-[320px] min-h-screen;
+    @apply m-0 min-w-[320px] min-h-screen bg-white text-stone-950;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  ::selection {
+    @apply bg-orange-200 text-stone-950;
   }
 }

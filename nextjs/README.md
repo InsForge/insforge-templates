@@ -1,64 +1,113 @@
-# **PROJECT_NAME**
+<h1 align="center">Next.js InsForge Starter</h1>
 
-A modern Next.js application with TypeScript and Tailwind CSS.
+<p align="center">
+  The fastest way to build apps with Next.js and InsForge
+</p>
+
+<p align="center">
+  <a href="#features"><strong>Features</strong></a> ·
+  <a href="#quick-launch"><strong>Quick launch</strong></a> ·
+  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
+  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
+  <a href="#environment-variables"><strong>Environment Variables</strong></a>
+</p>
+
+<p align="center">
+  <img alt="Next.js InsForge Starter homepage" src="./assets/nextjs-starter.png">
+</p>
+<br />
 
 ## Features
 
-- ⚡ **Next.js 15** - React framework for production
-- 🎨 **Tailwind CSS** - Utility-first CSS framework
-- 🔥 **TypeScript** - Type-safe development
-- 📦 **App Router** - Latest Next.js routing system
-- 🌙 **Dark Mode** - Built-in dark mode support
+- Works across the [Next.js](https://nextjs.org) App Router stack
+  - App Router
+  - Client Components
+  - Server Components
+  - Route Handlers
+  - Server Actions
+  - It just works
+- [InsForge](https://insforge.dev) auth configured to use cookies across the app
+- Optional Google and GitHub OAuth providers
+- Styling with [Tailwind CSS](https://tailwindcss.com)
+- Server-side auth actions using `@insforge/sdk`
+- Ready for local development and Vercel deployment
 
-## Getting Started
+## Quick launch
 
-### Install Dependencies
+If you want the fastest path, use the InsForge CLI and follow the prompts:
+
+```bash
+npx @insforge/cli create
+```
+
+From there:
+
+1. Choose the Next.js starter template
+2. Follow the prompt flow to create or connect your InsForge project
+3. Let the CLI handle the initial setup
+4. Choose to deploy with [Vercel](https://vercel.com) from the guided flow
+
+Use the sections below if you want to set up the starter manually.
+
+## Clone and run locally
+
+1. Create an InsForge project in your dashboard.
+
+2. Clone this repository and move into the starter directory.
+
+```bash
+git clone https://github.com/InsForge/insforge-templates.git
+cd insforge-templates/nextjs
+```
+
+3. Install dependencies.
 
 ```bash
 npm install
 ```
 
-### Start Development Server
+4. Copy `.env.example` to `.env.local` and update the values with your InsForge project settings.
+
+```bash
+cp .env.example .env.local
+```
+
+Replace:
+
+- `NEXT_PUBLIC_INSFORGE_URL` with the `Project URL`
+- `NEXT_PUBLIC_INSFORGE_ANON_KEY` with the `Anon Key`
+- `NEXT_PUBLIC_APP_URL` with `http://localhost:3000`
+
+You can find both in your InsForge dashboard under `Connect -> API Keys`.
+
+5. Start the development server.
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+The starter should now be running on [localhost:3000](http://localhost:3000).
 
-## Available Scripts
+## Deploy to Vercel
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+Click [Deploy with Vercel](https://vercel.com/new), then fill in the required environment variables during the setup flow:
 
-## Project Structure
+- `NEXT_PUBLIC_INSFORGE_URL`
+- `NEXT_PUBLIC_INSFORGE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL` with your production Vercel URL, for example `https://your-project.vercel.app`
 
-```
-src/
-├── app/
-│   ├── layout.tsx     # Root layout
-│   ├── page.tsx       # Home page
-│   └── globals.css    # Global styles with Tailwind
-```
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
 
 ## Environment Variables
 
-Create a `.env.local` file in the root directory for environment variables:
+Set the following values in `.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=your_api_url_here
+NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
+NEXT_PUBLIC_INSFORGE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_APP_URL=https://your-project.insforge.site
 ```
 
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com)
-- [TypeScript Documentation](https://www.typescriptlang.org)
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new).
-
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+You can find the project URL and anon key in your InsForge project settings.
