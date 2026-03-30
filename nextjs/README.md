@@ -5,6 +5,7 @@
 </p>
 
 <p align="center">
+  <a href="#demo"><strong>Demo</strong></a> ·
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#quick-launch"><strong>Quick launch</strong></a> ·
   <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
@@ -16,6 +17,10 @@
   <img alt="Next.js InsForge Starter homepage" src="./assets/nextjs-starter.png">
 </p>
 <br />
+
+## Demo
+
+Check out the live demo: [insforge-nextjs-starter-beta.vercel.app](https://insforge-nextjs-starter-beta.vercel.app/)
 
 ## Features
 
