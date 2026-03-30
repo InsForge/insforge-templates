@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+<h1 align="center">React InsForge Starter</h1>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  The fastest way to build apps with React and InsForge
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <a href="#features"><strong>Features</strong></a> ·
+  <a href="#quick-launch"><strong>Quick launch</strong></a> ·
+  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
+  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
+  <a href="#environment-variables"><strong>Environment Variables</strong></a>
+</p>
+<br />
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- Built with [React](https://react.dev), [Vite](https://vite.dev), TypeScript, and [Tailwind CSS](https://tailwindcss.com)
+- [InsForge](https://insforge.dev) auth flows for sign in, sign up, reset password, and OAuth callback handling
+- Viewer state wired through a shared auth context for the starter routes
+- Optional Google and GitHub OAuth providers
+- Browser-side auth actions using [`@insforge/sdk`](https://www.npmjs.com/package/@insforge/sdk)
+- Ready for local development and Vercel deployment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Quick launch
 
-## Expanding the ESLint configuration
+If you want the fastest path, use the InsForge CLI and follow the prompts:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npx @insforge/cli create
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+From there:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
+1. Choose the React starter template
+2. Follow the prompt flow to create or connect your InsForge project
+3. Let the CLI handle the initial setup
+4. Choose to deploy with [Vercel](https://vercel.com) from the guided flow
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+Use the sections below if you want to set up the starter manually.
+
+## Clone and run locally
+
+1. Create an InsForge project in your dashboard.
+
+2. Clone this repository and move into the starter directory.
+
+```bash
+git clone https://github.com/InsForge/insforge-templates.git
+cd insforge-templates/react
 ```
+
+3. Install dependencies.
+
+```bash
+npm install
+```
+
+4. Copy `env.example` to `.env.local` and update the values with your InsForge project settings.
+
+```bash
+cp env.example .env.local
+```
+
+Replace:
+
+- `VITE_INSFORGE_BASE_URL` with the `Project URL`
+- `VITE_INSFORGE_ANON_KEY` with the `Anon Key`
+
+You can find both in your InsForge dashboard under `Connect -> API Keys`.
+
+5. Start the development server.
+
+```bash
+npm run dev
+```
+
+The starter should now be running on [localhost:5173](http://localhost:5173).
+
+## Deploy to Vercel
+
+Click [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates&root-directory=react&project-name=insforge-react-starter&repository-name=insforge-react-starter&env=VITE_INSFORGE_BASE_URL,VITE_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Freact&demo-title=React%20InsForge%20Starter&demo-description=A%20clean%20React%20and%20Vite%20starter%20with%20InsForge%20auth%20and%20Tailwind%20CSS.), then fill in the required environment variables during the setup flow:
+
+- `VITE_INSFORGE_BASE_URL`
+- `VITE_INSFORGE_ANON_KEY`
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates&root-directory=react&project-name=insforge-react-starter&repository-name=insforge-react-starter&env=VITE_INSFORGE_BASE_URL,VITE_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Freact&demo-title=React%20InsForge%20Starter&demo-description=A%20clean%20React%20and%20Vite%20starter%20with%20InsForge%20auth%20and%20Tailwind%20CSS.)
+
+The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
+
+## Environment Variables
+
+Set the following values in `.env.local`:
+
+```env
+VITE_INSFORGE_BASE_URL=https://your-project.region.insforge.app
+VITE_INSFORGE_ANON_KEY=your-anon-key
+```
+
+You can find the project URL and anon key in your InsForge project settings.
