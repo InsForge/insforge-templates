@@ -17,16 +17,21 @@ export function SignInForm({ providers }: { providers: string[] }) {
     setIsLoading(true);
     setError('');
 
-    const result = await signIn(email.trim(), password);
+    try {
+      const result = await signIn(email.trim(), password);
 
-    if (result.success) {
-      await refreshViewer();
-      navigate('/');
-      return;
+      if (result.success) {
+        await refreshViewer();
+        navigate('/');
+        return;
+      }
+
+      setError(result.error);
+    } catch {
+      setError('An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setError(result.error);
-    setIsLoading(false);
   }
 
   return (
