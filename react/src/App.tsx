@@ -14,7 +14,7 @@ import { exchangeAuthCode, getAuthConfig } from './lib/auth';
 import { useAuth } from './lib/auth-context';
 
 const deployUrl =
-  'https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates&root-directory=react&project-name=insforge-react-starter&repository-name=insforge-react-starter&env=VITE_INSFORGE_BASE_URL,VITE_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Freact&demo-title=React%20InsForge%20Starter&demo-description=A%20clean%20React%20and%20Vite%20starter%20with%20InsForge%20configuration%20and%20Tailwind%20CSS.';
+  'https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates&root-directory=react&project-name=insforge-react-starter&repository-name=insforge-react-starter&env=VITE_INSFORGE_BASE_URL,VITE_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Freact&demo-title=React%20InsForge%20Starter&demo-description=A%20clean%20React%20and%20Vite%20starter%20with%20InsForge%20auth%20and%20Tailwind%20CSS.&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FInsForge%2Finsforge-templates%2Fmain%2Freact%2Freact-starter.png';
 
 type PublicConfig = {
   oAuthProviders: string[];
@@ -248,15 +248,23 @@ function AuthCallbackPage() {
     })();
   }, [navigate, refreshViewer]);
 
+  if (error) {
+    return (
+      <AuthPageShell
+        footer={<p><Link to="/auth/sign-in">Back to sign in</Link></p>}
+      >
+        <div className="auth-header">
+          <h1>Unable to complete sign-in</h1>
+          <p>{error}</p>
+        </div>
+      </AuthPageShell>
+    );
+  }
+
   return (
-    <AuthPageShell
-      footer={<p>{error ? <Link to="/auth/sign-in">Back to sign in</Link> : null}</p>}
-    >
-      <div className="auth-header">
-        <h1>{error ? 'Unable to complete sign-in' : 'Completing sign-in'}</h1>
-        <p>{error || 'Please wait while we finish the OAuth flow.'}</p>
-      </div>
-    </AuthPageShell>
+    <div className="auth-callback-loading">
+      <div className="auth-callback-spinner" />
+    </div>
   );
 }
 

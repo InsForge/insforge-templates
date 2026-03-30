@@ -51,7 +51,7 @@ export function OAuthProviderButtons({ providers }: { providers: string[] }) {
             onClick={() => void handleOAuth(provider)}
           >
             {loadingProvider === provider ? (
-              <span className="auth-helper">Loading...</span>
+              <span className="oauth-button-spinner" />
             ) : (
               <>
                 <OAuthProviderIcon provider={provider} />
