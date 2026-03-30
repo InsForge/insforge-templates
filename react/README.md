@@ -76,7 +76,7 @@ Replace:
 - `VITE_INSFORGE_BASE_URL` with the `Project URL`
 - `VITE_INSFORGE_ANON_KEY` with the `Anon Key`
 
-You can find both in your InsForge dashboard under `Connect -> API Keys`.
+You can find both in your InsForge dashboard under `Connect` → `API Keys`.
 
 5. Start the development server.
 
@@ -97,12 +97,9 @@ Click [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%
 
 After importing into Vercel:
 
-1. Set `VITE_INSFORGE_BASE_URL`
-2. Set `VITE_INSFORGE_ANON_KEY`
-3. Deploy the project
-4. In your InsForge dashboard, open `Authentication` → `General` → `Allowed Redirect URLs`
-5. Add your deployed callback URL, for example `https://your-project.vercel.app/auth/callback`
-6. If you test locally as well, also allow `http://localhost:5173/auth/callback`
+1. In your InsForge dashboard, open `Authentication` → `General` → `Allowed Redirect URLs`
+2. Add your deployed callback URL, for example `https://your-project.vercel.app/auth/callback`
+3. If you test locally as well, also allow `http://localhost:5173/auth/callback`
 
 The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
 
