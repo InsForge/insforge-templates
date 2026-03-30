@@ -10,10 +10,16 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const visitorId = searchParams.get('visitorId');
     const userId = searchParams.get('userId');
 
-    const context = await resolveChatOwnerContext({ userId, visitorId });
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required.' },
+        { status: 401 },
+      );
+    }
+
+    const context = await resolveChatOwnerContext({ userId });
 
     if (!context) {
       return NextResponse.json(

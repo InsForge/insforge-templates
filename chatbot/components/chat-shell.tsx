@@ -53,17 +53,6 @@ import type {
 } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-const VISITOR_STORAGE_KEY = 'insforge-chatbot-visitor-id';
-
-function getOrCreateVisitorId() {
-  const existingId = window.localStorage.getItem(VISITOR_STORAGE_KEY);
-  if (existingId) return existingId;
-
-  const nextId = crypto.randomUUID();
-  window.localStorage.setItem(VISITOR_STORAGE_KEY, nextId);
-  return nextId;
-}
-
 function sortChats(chats: ChatSummary[]) {
   return [...chats].sort(
     (left, right) =>
@@ -289,18 +278,14 @@ function SidebarAccountBar({
   );
 }
 
-function getOwnerParams(viewer: AuthViewer, visitorId: string | null) {
+function getOwnerParams(viewer: AuthViewer) {
   if (viewer.isAuthenticated && viewer.id) {
     return { queryParam: `userId=${encodeURIComponent(viewer.id)}`, bodyField: { userId: viewer.id } };
-  }
-  if (visitorId) {
-    return { queryParam: `visitorId=${encodeURIComponent(visitorId)}`, bodyField: { visitorId } };
   }
   return null;
 }
 
 export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
-  const [visitorId, setVisitorId] = useState<string | null>(null);
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -336,16 +321,13 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
     syncChatIdToUrl(activeChatId);
   }, [activeChatId, syncChatIdToUrl]);
 
+  const ownerInfo = getOwnerParams(initialViewer);
+
   useEffect(() => {
-    if (!initialViewer.isAuthenticated) {
-      setVisitorId(getOrCreateVisitorId());
+    if (!ownerInfo) {
+      setIsBootstrapping(false);
+      return;
     }
-  }, [initialViewer.isAuthenticated]);
-
-  const ownerInfo = getOwnerParams(initialViewer, visitorId);
-
-  useEffect(() => {
-    if (!ownerInfo) return;
 
     let cancelled = false;
 
@@ -619,6 +601,11 @@ export function ChatShell({ initialViewer }: { initialViewer: AuthViewer }) {
   }
 
   async function handleSendMessage(nextInput?: string) {
+    if (!initialViewer.isAuthenticated) {
+      window.location.href = '/auth/sign-in';
+      return;
+    }
+
     const trimmedInput = (nextInput ?? input).trim();
     if (!trimmedInput || !ownerInfo || isSending) return;
 
