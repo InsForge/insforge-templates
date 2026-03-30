@@ -31,8 +31,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="app-shell">
         <nav className="app-nav">
           <div className="app-nav__inner">
-            <div className="app-title">React InsForge Starter</div>
-            <div className="app-nav__actions">
+            <div className="app-nav__left">
+              <div className="app-title">React InsForge Starter</div>
               <a
                 href={deployUrl}
                 target="_blank"
@@ -41,6 +41,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               >
                 Deploy to Vercel
               </a>
+            </div>
+            <div className="app-nav__actions">
               {isLoading ? null : viewer.isAuthenticated ? (
                 <>
                   <div className="app-user">{viewer.name || viewer.email || 'Signed in'}</div>
@@ -214,7 +216,7 @@ function ResetPasswordPage() {
 
 function AuthCallbackPage() {
   const navigate = useNavigate();
-  const { viewer, refreshViewer } = useAuth();
+  const { viewer, isLoading, refreshViewer } = useAuth();
   const [error, setError] = useState('');
   const exchangeStarted = useRef(false);
 
@@ -225,7 +227,7 @@ function AuthCallbackPage() {
   }, [viewer.isAuthenticated]);
 
   useEffect(() => {
-    if (exchangeStarted.current) return;
+    if (isLoading || exchangeStarted.current) return;
 
     const url = new URL(window.location.href);
     const code = url.searchParams.get('insforge_code');
@@ -250,7 +252,7 @@ function AuthCallbackPage() {
 
       setError(result.error);
     })();
-  }, [navigate, refreshViewer]);
+  }, [isLoading, navigate, refreshViewer]);
 
   if (error) {
     return (

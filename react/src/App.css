@@ -34,6 +34,12 @@
   width: 100%;
 }
 
+.app-nav__left {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
 .app-title {
   color: var(--fg);
   font-size: 0.875rem;
@@ -56,10 +62,6 @@
   justify-content: center;
   min-height: 2.25rem;
   padding: 0.5rem 0.75rem;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
 }
 
 .app-button:disabled {
@@ -73,6 +75,7 @@
 
 .app-button--primary:hover {
   background: var(--btn-primary-hover);
+  transition: background-color 0.15s ease;
 }
 
 .app-button--secondary {
@@ -83,6 +86,7 @@
 
 .app-button--secondary:hover {
   background: var(--btn-secondary-hover);
+  transition: background-color 0.15s ease;
 }
 
 .app-user {
