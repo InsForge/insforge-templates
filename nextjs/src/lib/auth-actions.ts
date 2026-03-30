@@ -145,7 +145,11 @@ export async function getOAuthUrl(provider: string): Promise<{ url: string } | {
   const origin =
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : process.env.NEXT_PUBLIC_APP_URL!;
+      : process.env.NEXT_PUBLIC_APP_URL ?? "";
+
+  if (!origin) {
+    return { error: "Missing NEXT_PUBLIC_APP_URL." };
+  }
 
   type OAuthProvider = Parameters<typeof insforge.auth.signInWithOAuth>[0]["provider"];
 
