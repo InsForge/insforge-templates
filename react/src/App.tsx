@@ -131,7 +131,7 @@ function HomePage() {
           <h2>Next steps</h2>
           <ol className="app-steps">
             <li className="app-step">
-              <div className="app-step__marker" />
+              <input type="checkbox" className="app-step__marker" />
               <div className="app-step__content">
                 <h3>Sign up your first user</h3>
                 <div className="app-step__body">

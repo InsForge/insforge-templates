@@ -43,13 +43,11 @@ export type ChatStreamEvent =
   | { type: 'warning'; message: string };
 
 export interface ChatOwner {
-  userId?: string;
-  visitorId?: string;
+  userId: string;
 }
 
 export interface SendMessageRequest {
-  visitorId?: string;
-  userId?: string;
+  userId: string;
   chatId?: string | null;
   input?: string;
   model?: string;

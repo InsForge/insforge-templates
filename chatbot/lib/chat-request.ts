@@ -2,7 +2,7 @@ import { getAccessToken, getRefreshToken, setAuthCookies } from '@/lib/auth-cook
 import { createInsforgeServerClient } from '@/lib/insforge';
 import type { ChatOwner } from '@/lib/types';
 
-export const CHAT_OWNER_REQUIRED_ERROR = 'visitorId or userId is required.';
+export const CHAT_OWNER_REQUIRED_ERROR = 'userId is required.';
 
 async function resolveAccessToken(): Promise<string | null> {
   const accessToken = await getAccessToken();
@@ -24,24 +24,15 @@ async function resolveAccessToken(): Promise<string | null> {
 
 export async function resolveChatOwnerContext(input: {
   userId: string | null;
-  visitorId: string | null;
 }): Promise<{ owner: ChatOwner; accessToken: string | null } | null> {
   const userId = input.userId?.trim() || null;
-  const visitorId = input.visitorId?.trim() || null;
 
-  if (!userId && !visitorId) {
+  if (!userId) {
     return null;
   }
 
-  if (userId) {
-    return {
-      owner: { userId },
-      accessToken: await resolveAccessToken(),
-    };
-  }
-
   return {
-    owner: { visitorId: visitorId! },
-    accessToken: null,
+    owner: { userId },
+    accessToken: await resolveAccessToken(),
   };
 }

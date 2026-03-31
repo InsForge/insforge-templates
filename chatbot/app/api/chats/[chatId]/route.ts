@@ -13,11 +13,17 @@ export async function GET(
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const visitorId = searchParams.get('visitorId');
     const userId = searchParams.get('userId');
     const { chatId } = await context.params;
 
-    const ownerContext = await resolveChatOwnerContext({ userId, visitorId });
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required.' },
+        { status: 401 },
+      );
+    }
+
+    const ownerContext = await resolveChatOwnerContext({ userId });
 
     if (!ownerContext) {
       return NextResponse.json(
@@ -47,11 +53,17 @@ export async function DELETE(
 ) {
   try {
     const { searchParams } = new URL(request.url);
-    const visitorId = searchParams.get('visitorId');
     const userId = searchParams.get('userId');
     const { chatId } = await context.params;
 
-    const ownerContext = await resolveChatOwnerContext({ userId, visitorId });
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required.' },
+        { status: 401 },
+      );
+    }
+
+    const ownerContext = await resolveChatOwnerContext({ userId });
 
     if (!ownerContext) {
       return NextResponse.json(

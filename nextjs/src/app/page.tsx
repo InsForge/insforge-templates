@@ -138,9 +138,7 @@ export default async function Home() {
             <ol className="flex flex-col gap-6">
               {isVercelDeployment ? (
                 <li className="relative">
-                  <div className="absolute top-[3px] flex h-4 w-4 items-center justify-center rounded-sm border border-stone-300 bg-white">
-                    <div className="h-2 w-2 rounded-[2px] bg-stone-200" />
-                  </div>
+                  <input type="checkbox" className="absolute top-[3px] h-4 w-4 cursor-pointer rounded-sm border border-stone-300 accent-stone-900" />
                   <div className="ml-8">
                     <h3 className="text-base font-medium text-stone-950">Set up redirect urls</h3>
                     <div className="mt-1 text-sm font-normal text-stone-600 space-y-4">
@@ -196,9 +194,7 @@ export default async function Home() {
               ) : null}
 
               <li className="relative">
-                <div className="absolute top-[3px] flex h-4 w-4 items-center justify-center rounded-sm border border-stone-300 bg-white">
-                  <div className="h-2 w-2 rounded-[2px] bg-stone-200" />
-                </div>
+                <input type="checkbox" className="absolute top-[3px] h-4 w-4 cursor-pointer rounded-sm border border-stone-300 accent-stone-900" />
                 <div className="ml-8">
                   <h3 className="text-base font-medium text-stone-950">Sign up your first user</h3>
                   <div className="mt-1 text-sm font-normal text-stone-600 space-y-3">

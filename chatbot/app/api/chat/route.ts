@@ -12,9 +12,15 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as SendMessageRequest;
 
+    if (!body.userId) {
+      return NextResponse.json(
+        { error: 'Authentication required.' },
+        { status: 401 },
+      );
+    }
+
     const context = await resolveChatOwnerContext({
-      userId: body.userId ?? null,
-      visitorId: body.visitorId ?? null,
+      userId: body.userId,
     });
 
     if (!context) {

@@ -6,6 +6,10 @@ import { toast } from 'sonner';
 import { addToCartAction } from '@/lib/store-actions';
 import { Button } from '@/components/ui/button';
 
+function isRedirectError(error: unknown): boolean {
+  return (error as any)?.digest?.startsWith('NEXT_REDIRECT');
+}
+
 export function AddToCartButton({
   productId,
   variantId,
@@ -31,6 +35,7 @@ export function AddToCartButton({
         await addToCartAction(productId, quantity, variantId);
         toast.success('Added to cart.');
       } catch (error) {
+        if (isRedirectError(error)) throw error;
         toast.error(error instanceof Error ? error.message : 'Unable to add item.');
       } finally {
         setIsPending(false);

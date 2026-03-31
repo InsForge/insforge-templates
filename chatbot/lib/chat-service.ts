@@ -12,8 +12,7 @@ import { createAIProvider, getAIProviderName } from '@/lib/ai';
 import type { UserContentPart, FileParserOptions } from '@/lib/ai';
 
 type ChatSessionRow = ChatSummary & {
-  visitor_id: string | null;
-  user_id: string | null;
+  user_id: string;
 };
 
 type ChatMessageRow = ChatMessage & {
@@ -40,34 +39,23 @@ const INLINE_TEXT_CHAR_LIMIT = 12_000;
 
 function ensureOwner(owner: ChatOwner): ChatOwner {
   const userId = owner.userId?.trim();
-  const visitorId = owner.visitorId?.trim();
 
-  if (!userId && !visitorId) {
+  if (!userId) {
     throw new Error('Missing owner identifier.');
   }
 
-  if (userId && visitorId) {
-    throw new Error('Only one of userId or visitorId may be provided.');
-  }
-
-  return userId ? { userId } : { visitorId };
+  return { userId };
 }
 
 function applyOwnerFilter<T extends { eq: (col: string, val: string) => T }>(
   query: T,
   owner: ChatOwner,
 ): T {
-  if (owner.userId) {
-    return query.eq('user_id', owner.userId);
-  }
-  return query.eq('visitor_id', owner.visitorId!);
+  return query.eq('user_id', owner.userId);
 }
 
 function ownerInsertFields(owner: ChatOwner) {
-  if (owner.userId) {
-    return { user_id: owner.userId, visitor_id: null };
-  }
-  return { visitor_id: owner.visitorId!, user_id: null };
+  return { user_id: owner.userId, visitor_id: null };
 }
 
 type InsforgeClient = ReturnType<typeof createInsforgeServerClient>;
@@ -101,7 +89,7 @@ async function getChatRow(owner: ChatOwner, chatId: string, accessToken?: string
   const insforge = getClient(accessToken);
   let query = insforge.database
     .from('chat_sessions')
-    .select('id, visitor_id, user_id, title, created_at, last_message_at')
+    .select('id, user_id, title, created_at, last_message_at')
     .eq('id', chatId);
 
   query = applyOwnerFilter(query, owner);
@@ -167,7 +155,7 @@ async function createChat(owner: ChatOwner, input: string, accessToken?: string 
         title: buildTitle(input),
       },
     ])
-    .select('id, visitor_id, user_id, title, created_at, last_message_at');
+    .select('id, user_id, title, created_at, last_message_at');
 
   assertNoDatabaseError(error, 'Unable to create a new chat.');
 

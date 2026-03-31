@@ -5,7 +5,7 @@ import { getAccessToken, getRefreshToken } from '@/lib/auth-cookies';
 import { createInsforgeServerClient } from '@/lib/insforge';
 import type { AuthViewer } from '@/lib/types';
 
-const VISITOR_VIEWER: AuthViewer = {
+const UNAUTHENTICATED_VIEWER: AuthViewer = {
   isAuthenticated: false,
   id: null,
   email: null,
@@ -14,7 +14,7 @@ const VISITOR_VIEWER: AuthViewer = {
 };
 
 function mapUserToViewer(user: UserSchema | null | undefined): AuthViewer {
-  if (!user) return VISITOR_VIEWER;
+  if (!user) return UNAUTHENTICATED_VIEWER;
 
   return {
     isAuthenticated: true,
@@ -54,5 +54,5 @@ export async function getCurrentViewer(): Promise<AuthViewer> {
     return mapUserToViewer(user);
   }
 
-  return VISITOR_VIEWER;
+  return UNAUTHENTICATED_VIEWER;
 }

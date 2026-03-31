@@ -222,25 +222,13 @@
 }
 
 .app-step__marker {
-  align-items: center;
-  background: var(--marker-bg);
-  border: 1px solid var(--marker-border);
-  border-radius: 0.125rem;
-  display: flex;
+  cursor: pointer;
   height: 1rem;
-  justify-content: center;
   left: 0;
+  margin: 0;
   position: absolute;
   top: 0.2rem;
   width: 1rem;
-}
-
-.app-step__marker::after {
-  background: var(--marker-dot);
-  border-radius: 0.125rem;
-  content: '';
-  height: 0.5rem;
-  width: 0.5rem;
 }
 
 .app-step__content {
