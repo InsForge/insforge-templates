@@ -1,11 +1,9 @@
-import { signOut } from "@/lib/auth-actions";
-
 export function LogoutButton() {
   return (
-    <form action={signOut}>
+    <form action="/auth/sign-out" method="post">
       <button
         type="submit"
-        className="inline-flex items-center rounded-md border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-900 hover:bg-stone-50"
+        className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--surface-muted)]"
       >
         Logout
       </button>

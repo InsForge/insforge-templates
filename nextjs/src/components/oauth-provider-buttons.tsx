@@ -36,10 +36,10 @@ export function OAuthProviderButtons({ providers }: { providers: string[] }) {
     <div className="space-y-4">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-stone-200" />
+          <div className="w-full border-t border-[var(--border)]" />
         </div>
         <div className="relative flex justify-center text-xs uppercase tracking-[0.14em]">
-          <span className="bg-white px-2 text-stone-400">or continue with</span>
+          <span className="bg-[var(--surface)] px-2 text-[var(--muted-foreground)]">or continue with</span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ export function OAuthProviderButtons({ providers }: { providers: string[] }) {
           <button
             key={provider}
             type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 text-sm font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] disabled:opacity-50"
             disabled={loadingProvider !== null}
             onClick={() => void handleOAuth(provider)}
           >

@@ -10,7 +10,7 @@ export function Hero() {
           href="https://insforge.dev"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-center gap-3 text-stone-950"
+          className="flex items-center justify-center gap-3 text-[var(--foreground)]"
         >
           <Image
             src="/favicon.ico"
@@ -21,15 +21,15 @@ export function Hero() {
           />
           <span className="text-[28px] font-semibold tracking-[-0.03em]">InsForge</span>
         </a>
-        <span className="h-6 rotate-45 border-l border-stone-300" />
-        <a href="https://nextjs.org" target="_blank" rel="noreferrer" className="text-stone-950">
+        <span className="h-6 rotate-45 border-l border-[var(--border)]" />
+        <a href="https://nextjs.org" target="_blank" rel="noreferrer" className="text-[var(--foreground)]">
           <NextLogo />
         </a>
       </div>
 
       <h1 className="sr-only">InsForge and Next.js Starter Template</h1>
 
-      <p className="max-w-2xl text-center text-3xl leading-tight text-stone-950 lg:text-4xl">
+      <p className="max-w-2xl text-center text-3xl leading-tight text-[var(--foreground)] lg:text-4xl">
         The fastest way to build apps with{" "}
         <a href="https://insforge.dev" target="_blank" rel="noreferrer" className="font-bold hover:underline">
           InsForge
@@ -40,12 +40,12 @@ export function Hero() {
         </a>
       </p>
 
-      <p className="max-w-xl text-center text-sm leading-7 text-stone-600">
+      <p className="max-w-xl text-center text-sm leading-7 text-[var(--muted-foreground)]">
         A simple starter with auth, protected routes, and example database reads so you can
         get from blank project to real product work without rebuilding the basics.
       </p>
 
-      <div className="w-full bg-gradient-to-r from-transparent via-stone-900/10 to-transparent p-px" />
+      <div className="w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent p-px" />
     </div>
   );
 }

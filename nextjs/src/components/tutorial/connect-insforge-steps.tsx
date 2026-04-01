@@ -12,7 +12,7 @@ export function ConnectInsforgeSteps() {
 
       <TutorialStep title="Add your environment variables">
         <p>Set the following values before testing auth or database reads:</p>
-        <ul className="space-y-2 font-mono text-xs text-stone-700">
+        <ul className="space-y-2 font-mono text-xs text-[var(--muted-foreground)]">
           <li>NEXT_PUBLIC_INSFORGE_URL</li>
           <li>NEXT_PUBLIC_INSFORGE_ANON_KEY</li>
           <li>NEXT_PUBLIC_APP_URL</li>

@@ -9,11 +9,11 @@ export function TutorialStep({
     <li className="relative">
       <input
         type="checkbox"
-        className="absolute top-[3px] h-4 w-4 cursor-pointer rounded-sm border border-stone-300 accent-stone-900"
+        className="absolute top-[3px] h-4 w-4 cursor-pointer rounded-sm border border-[var(--border)] accent-[var(--foreground)]"
       />
       <div className="ml-8">
-        <h3 className="text-base font-medium text-stone-950">{title}</h3>
-        <div className="mt-1 space-y-3 text-sm font-normal leading-7 text-stone-600">{children}</div>
+        <h3 className="text-base font-medium text-[var(--foreground)]">{title}</h3>
+        <div className="mt-1 space-y-3 text-sm font-normal leading-7 text-[var(--muted-foreground)]">{children}</div>
       </div>
     </li>
   );

@@ -17,12 +17,12 @@ export function SignUpUserSteps() {
           </p>
           <ul className="space-y-2">
             <li>
-              <span className="rounded bg-stone-100 px-1.5 py-1 font-mono text-xs text-stone-700">
+              <span className="rounded bg-[var(--surface-muted)] px-1.5 py-1 font-mono text-xs text-[var(--muted-foreground)]">
                 http://localhost:3000/**
               </span>
             </li>
             <li>
-              <span className="rounded bg-stone-100 px-1.5 py-1 font-mono text-xs text-stone-700">
+              <span className="rounded bg-[var(--surface-muted)] px-1.5 py-1 font-mono text-xs text-[var(--muted-foreground)]">
                 {`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL}/**`}
               </span>
             </li>
@@ -33,7 +33,7 @@ export function SignUpUserSteps() {
       <TutorialStep title="Sign up your first user">
         <p>
           Head over to the{" "}
-          <Link href="/auth/sign-up" className="font-bold text-stone-900 hover:underline">
+          <Link href="/auth/sign-up" className="font-bold text-[var(--foreground)] hover:underline">
             sign up
           </Link>{" "}
           page and create your first user. When the flow succeeds, the app will send you to

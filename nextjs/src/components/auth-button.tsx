@@ -12,13 +12,13 @@ export async function AuthButton() {
       <div className="flex gap-2">
         <Link
           href="/auth/sign-in"
-          className="inline-flex items-center rounded-md border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-900 hover:bg-stone-50"
+          className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--surface-muted)]"
         >
           Sign in
         </Link>
         <Link
           href="/auth/sign-up"
-          className="inline-flex items-center rounded-md border border-stone-950 bg-stone-950 px-3 py-2 text-xs font-medium text-white hover:bg-stone-800"
+          className="inline-flex items-center rounded-md border border-[var(--foreground)] bg-[var(--foreground)] px-3 py-2 text-xs font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90"
         >
           Sign up
         </Link>
@@ -27,7 +27,7 @@ export async function AuthButton() {
   }
 
   return (
-    <div className="flex items-center gap-4 text-xs font-medium text-stone-700">
+    <div className="flex items-center gap-4 text-xs font-medium text-[var(--muted-foreground)]">
       <span>Hey, {viewer.name || viewer.email || "there"}!</span>
       <LogoutButton />
     </div>

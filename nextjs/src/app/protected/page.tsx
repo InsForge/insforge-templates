@@ -19,7 +19,7 @@ export default async function ProtectedPage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="rounded-md bg-stone-100 px-5 py-3 text-sm text-stone-700">
+      <div className="rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-5 py-3 text-sm text-[var(--muted-foreground)]">
         <span className="inline-flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -42,14 +42,14 @@ export default async function ProtectedPage() {
       </div>
 
       <div className="flex flex-col gap-3 items-start">
-        <h2 className="text-2xl font-bold text-stone-950">Your user details</h2>
-        <pre className="max-h-64 overflow-auto rounded-xl border border-stone-200 bg-white p-4 text-xs text-stone-800">
+        <h2 className="text-2xl font-bold text-[var(--foreground)]">Your user details</h2>
+        <pre className="max-h-64 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-xs text-[var(--foreground)]">
           {JSON.stringify(user ?? viewer, null, 2)}
         </pre>
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold text-stone-950">Next steps</h2>
+        <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">Next steps</h2>
         <FetchDataSteps />
       </div>
     </div>

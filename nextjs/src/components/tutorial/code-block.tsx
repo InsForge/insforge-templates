@@ -45,7 +45,7 @@ export function CodeBlock({ code }: { code: string }) {
   }
 
   return (
-    <pre className="relative overflow-x-auto rounded-xl border border-stone-200 bg-stone-950 p-4 text-xs leading-6 text-stone-100">
+    <pre className="relative overflow-x-auto rounded-xl border border-[var(--border)] bg-[#0c0a09] p-4 text-xs leading-6 text-stone-100 dark:bg-[#0c0a09]">
       <button
         type="button"
         onClick={copy}

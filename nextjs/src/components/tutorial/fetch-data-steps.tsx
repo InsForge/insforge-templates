@@ -63,7 +63,7 @@ export function FetchDataSteps() {
             href="https://insforge.dev/dashboard"
             target="_blank"
             rel="noreferrer"
-            className="font-bold text-stone-900 hover:underline"
+            className="font-bold text-[var(--foreground)] hover:underline"
           >
             InsForge dashboard
           </a>{" "}
