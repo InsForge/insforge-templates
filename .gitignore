@@ -134,3 +134,22 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# InsForge & AI agent skills
+.insforge
+skills/
+skills-lock.json
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.kiro
+.pi
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
