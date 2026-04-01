@@ -2,13 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>react-starter-template</title>
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem('theme') || 'system';
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const resolvedTheme = savedTheme === 'system' ? (prefersDark ? 'dark' : 'light') : savedTheme;
+          document.documentElement.setAttribute('data-theme', resolvedTheme);
+          document.documentElement.style.colorScheme = resolvedTheme;
+        } catch {}
+      })();
+    </script>
+    <title>React InsForge Starter</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

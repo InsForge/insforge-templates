@@ -22,7 +22,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
 
       if (result.success) {
         await refreshViewer();
-        navigate('/');
+        navigate('/protected');
         return;
       }
 

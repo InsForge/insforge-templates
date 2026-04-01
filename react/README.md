@@ -24,11 +24,19 @@ Check out the live demo: [insforge-react-starter.vercel.app](https://insforge-re
 
 ## Features
 
-- Built with [React](https://react.dev), [Vite](https://vite.dev), TypeScript, and [Tailwind CSS](https://tailwindcss.com)
-- [InsForge](https://insforge.dev) auth flows for sign in, sign up, reset password, and OAuth callback handling
+- Works across a modern [React](https://react.dev) starter stack
+  - React 19
+  - Vite
+  - React Router
+  - TypeScript
+  - It just works
+- [InsForge](https://insforge.dev) auth configured across the starter app
 - Viewer state wired through a shared auth context for the starter routes
+- Protected example route with signed-in user details and starter steps
 - Optional Google and GitHub OAuth providers
 - Browser-side auth actions using [`@insforge/sdk`](https://www.npmjs.com/package/@insforge/sdk)
+- Starter homepage with environment setup guidance
+- Styling with [Tailwind CSS](https://tailwindcss.com)
 - Ready for local development and Vercel deployment
 
 ## Quick launch

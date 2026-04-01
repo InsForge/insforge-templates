@@ -38,7 +38,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
     }
 
     await refreshViewer();
-    navigate('/');
+    navigate('/protected');
   }
 
   async function handleVerify(event: React.FormEvent) {
@@ -50,7 +50,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
 
     if (result.success) {
       await refreshViewer();
-      navigate('/');
+      navigate('/protected');
       return;
     }
 
