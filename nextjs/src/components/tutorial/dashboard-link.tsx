@@ -17,8 +17,20 @@ const ExternalLinkIcon = () => (
   </svg>
 );
 
+function getProjectIdFromLinkFile(): string | null {
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const filePath = path.resolve(process.cwd(), ".insforge", "project.json");
+    const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    return content.project_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function getDashboardUrl(): string {
-  const projectId = process.env.NEXT_PUBLIC_INSFORGE_PROJECT_ID;
+  const projectId = getProjectIdFromLinkFile();
   if (projectId) {
     return `https://insforge.dev/dashboard/project/${projectId}`;
   }

@@ -55,7 +55,24 @@ const SparkleIcon = () => (
   </svg>
 );
 
-export function PromptBlock({ prompt, label }: { prompt: string; label?: string }) {
+const TerminalIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="4 17 10 11 4 5" />
+    <line x1="12" y1="19" x2="20" y2="19" />
+  </svg>
+);
+
+export function PromptBlock({ prompt, label, variant = "agent" }: { prompt: string; label?: string; variant?: "agent" | "terminal" }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -68,7 +85,7 @@ export function PromptBlock({ prompt, label }: { prompt: string; label?: string 
     <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[#0c0a09] dark:bg-[#0c0a09]">
       <div className="flex items-center justify-between border-b border-stone-800 bg-stone-900/50 px-4 py-2">
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-400">
-          <SparkleIcon />
+          {variant === "terminal" ? <TerminalIcon /> : <SparkleIcon />}
           {label ?? "Copy to your AI agent"}
         </span>
         <button

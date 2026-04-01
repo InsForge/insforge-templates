@@ -11,11 +11,15 @@ export function ConnectInsforgeSteps() {
       </TutorialStep>
 
       <TutorialStep title="Add your environment variables">
-        <p>Set the following values before testing auth or database reads:</p>
+        <p>
+          Rename <code className="font-mono text-xs bg-[var(--surface)] px-1.5 py-0.5 rounded">.env.example</code> to{" "}
+          <code className="font-mono text-xs bg-[var(--surface)] px-1.5 py-0.5 rounded">.env.local</code>, then
+          set the following values:
+        </p>
         <ul className="space-y-2 font-mono text-xs text-[var(--muted-foreground)]">
           <li>NEXT_PUBLIC_INSFORGE_URL</li>
           <li>NEXT_PUBLIC_INSFORGE_ANON_KEY</li>
-          <li>NEXT_PUBLIC_APP_URL</li>
+          <li>NEXT_PUBLIC_APP_URL <span className="text-[var(--muted-foreground)]/60">(http://localhost:3000 for dev, your actual URL for production)</span></li>
         </ul>
       </TutorialStep>
 

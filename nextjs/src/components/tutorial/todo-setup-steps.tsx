@@ -107,7 +107,7 @@ export function TodoSetupSteps({ tableExists, hasData, playground }: TodoSetupSt
           <p>
             Connect your AI agent to this project. This installs the InsForge CLI and skills.
           </p>
-          <PromptBlock prompt={linkProjectPrompt} />
+          <PromptBlock prompt={linkProjectPrompt} label="Run in your terminal" variant="terminal" />
         </Step>
 
         <Step number={2} title="Create the todos table" isComplete={step2Done}>
