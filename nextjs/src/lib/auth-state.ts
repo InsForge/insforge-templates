@@ -21,6 +21,8 @@ const VISITOR_VIEWER: AuthViewer = {
   avatarUrl: null,
 };
 
+export type { AuthViewer };
+
 function mapUserToViewer(user: UserSchema | null | undefined): AuthViewer {
   if (!user) {
     return VISITOR_VIEWER;
@@ -46,7 +48,7 @@ async function refreshAuthenticatedUser(refreshToken: string) {
   return data.user;
 }
 
-export async function getCurrentViewer(): Promise<AuthViewer> {
+export async function getCurrentUserDetails(): Promise<UserSchema | null> {
   const accessToken = await getAccessToken();
   const refreshToken = await getRefreshToken();
 
@@ -55,14 +57,18 @@ export async function getCurrentViewer(): Promise<AuthViewer> {
     const { data, error } = await insforge.auth.getCurrentUser();
 
     if (!error && data.user) {
-      return mapUserToViewer(data.user);
+      return data.user;
     }
   }
 
   if (refreshToken) {
-    const user = await refreshAuthenticatedUser(refreshToken);
-    return mapUserToViewer(user);
+    return refreshAuthenticatedUser(refreshToken);
   }
 
-  return VISITOR_VIEWER;
+  return null;
+}
+
+export async function getCurrentViewer(): Promise<AuthViewer> {
+  const user = await getCurrentUserDetails();
+  return mapUserToViewer(user);
 }

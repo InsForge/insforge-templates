@@ -36,7 +36,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
       return;
     }
 
-    window.location.href = "/";
+    window.location.href = "/protected";
   }
 
   async function handleVerify(event: React.FormEvent) {
@@ -47,7 +47,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
     const result = await verifyEmail(email.trim(), otp.trim());
 
     if (result.success) {
-      window.location.href = "/";
+      window.location.href = "/protected";
       return;
     }
 
@@ -72,15 +72,15 @@ export function SignUpForm({ providers }: { providers: string[] }) {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-stone-950">Verify your email</h1>
-          <p className="mt-1 text-sm text-stone-500">
-            We sent a 6-digit code to <span className="font-medium text-stone-900">{email}</span>
+          <h1 className="text-2xl font-semibold text-[var(--foreground)]">Verify your email</h1>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            We sent a 6-digit code to <span className="font-medium text-[var(--foreground)]">{email}</span>
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleVerify}>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-stone-800" htmlFor="otp">
+            <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="otp">
               Verification code
             </label>
             <input
@@ -90,7 +90,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
               inputMode="numeric"
               maxLength={6}
               autoComplete="one-time-code"
-              className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-center text-lg tracking-[0.35em] text-stone-900 outline-none transition focus:border-stone-400"
+              className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-center text-lg tracking-[0.35em] text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
               placeholder="000000"
               value={otp}
               onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))}
@@ -101,7 +101,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
           {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
 
           <button
-            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
             type="submit"
             disabled={isLoading || otp.length < 6}
           >
@@ -109,9 +109,9 @@ export function SignUpForm({ providers }: { providers: string[] }) {
           </button>
         </form>
 
-        <p className="text-center text-sm text-stone-500">
+        <p className="text-center text-sm text-[var(--muted-foreground)]">
           Didn&apos;t receive the code?{" "}
-          <button type="button" className="text-stone-900 underline-offset-4 hover:underline" onClick={() => void handleResend()}>
+          <button type="button" className="text-[var(--foreground)] underline-offset-4 hover:underline" onClick={() => void handleResend()}>
             Resend
           </button>
         </p>
@@ -122,13 +122,13 @@ export function SignUpForm({ providers }: { providers: string[] }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-stone-950">Create an account</h1>
-        <p className="mt-1 text-sm text-stone-500">Enter your details to get started</p>
+        <h1 className="text-2xl font-semibold text-[var(--foreground)]">Create an account</h1>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">Enter your details to get started</p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSignUp}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-stone-800" htmlFor="name">
+          <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="name">
             Name
           </label>
           <input
@@ -136,7 +136,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
             type="text"
             required
             autoComplete="name"
-            className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+            className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
             placeholder="Your name"
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -144,7 +144,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-stone-800" htmlFor="email">
+          <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="email">
             Email
           </label>
           <input
@@ -152,7 +152,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
             type="email"
             required
             autoComplete="email"
-            className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+            className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
             placeholder="you@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -160,7 +160,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-stone-800" htmlFor="password">
+          <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="password">
             Password
           </label>
           <input
@@ -168,7 +168,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
             type="password"
             required
             autoComplete="new-password"
-            className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+            className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
             placeholder="Create a password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -179,7 +179,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
         {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
 
         <button
-          className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+          className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
           type="submit"
           disabled={isLoading}
         >

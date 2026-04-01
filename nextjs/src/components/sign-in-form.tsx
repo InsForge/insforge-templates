@@ -20,7 +20,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
     const result = await signIn(email.trim(), password);
 
     if (result.success) {
-      window.location.href = "/";
+      window.location.href = "/protected";
       return;
     }
 
@@ -32,7 +32,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
     <div className="space-y-6">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-stone-800" htmlFor="email">
+          <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="email">
             Email
           </label>
           <input
@@ -40,7 +40,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
             type="email"
             required
             autoComplete="email"
-            className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+            className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
             placeholder="you@example.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -49,10 +49,10 @@ export function SignInForm({ providers }: { providers: string[] }) {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-stone-800" htmlFor="password">
+            <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="password">
               Password
             </label>
-            <Link href="/auth/reset-password" className="text-xs text-stone-500 hover:text-stone-900">
+            <Link href="/auth/reset-password" className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
               Forgot password?
             </Link>
           </div>
@@ -61,7 +61,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
             type="password"
             required
             autoComplete="current-password"
-            className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+            className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
             placeholder="Enter your password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -71,7 +71,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
         <button
-          className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+          className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
           type="submit"
           disabled={isLoading}
         >

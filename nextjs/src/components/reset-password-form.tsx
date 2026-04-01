@@ -72,15 +72,15 @@ export function ResetPasswordForm() {
       {step === "email" ? (
         <>
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-stone-950">Reset password</h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Reset password</h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Enter your email and we&apos;ll send you a reset code
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSendEmail}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-800" htmlFor="email">
+              <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="email">
                 Email
               </label>
               <input
@@ -88,7 +88,7 @@ export function ResetPasswordForm() {
                 type="email"
                 required
                 autoComplete="email"
-                className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+                className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -99,7 +99,7 @@ export function ResetPasswordForm() {
             {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
               type="submit"
               disabled={isLoading}
             >
@@ -112,15 +112,15 @@ export function ResetPasswordForm() {
       {step === "code" ? (
         <>
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-stone-950">Enter reset code</h1>
-            <p className="mt-1 text-sm text-stone-500">
-              We sent a code to <span className="font-medium text-stone-900">{email}</span>
+            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Enter reset code</h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              We sent a code to <span className="font-medium text-[var(--foreground)]">{email}</span>
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleVerifyCode}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-800" htmlFor="code">
+              <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="code">
                 Reset code
               </label>
               <input
@@ -130,7 +130,7 @@ export function ResetPasswordForm() {
                 inputMode="numeric"
                 maxLength={6}
                 autoComplete="one-time-code"
-                className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-center text-lg tracking-[0.35em] text-stone-900 outline-none transition focus:border-stone-400"
+                className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-center text-lg tracking-[0.35em] text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
                 placeholder="000000"
                 value={code}
                 onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
@@ -141,7 +141,7 @@ export function ResetPasswordForm() {
             {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
               type="submit"
               disabled={isLoading || code.length < 6}
             >
@@ -154,13 +154,13 @@ export function ResetPasswordForm() {
       {step === "password" ? (
         <>
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-stone-950">Set new password</h1>
-            <p className="mt-1 text-sm text-stone-500">Choose a new password for your account</p>
+            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Set new password</h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Choose a new password for your account</p>
           </div>
 
           <form className="space-y-4" onSubmit={handleResetPassword}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-800" htmlFor="new-password">
+              <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="new-password">
                 New password
               </label>
               <input
@@ -168,7 +168,7 @@ export function ResetPasswordForm() {
                 type="password"
                 required
                 autoComplete="new-password"
-                className="flex h-10 w-full rounded-md border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-400"
+                className="flex h-10 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--foreground)]"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
@@ -178,7 +178,7 @@ export function ResetPasswordForm() {
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
             <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-stone-950 px-4 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+              className="inline-flex h-10 w-full items-center justify-center rounded-md bg-[var(--foreground)] px-4 text-sm font-medium text-[var(--surface)] opacity-100 transition hover:opacity-90 disabled:opacity-50"
               type="submit"
               disabled={isLoading}
             >
