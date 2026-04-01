@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
+import { TodosDisplay } from "@/components/todos-display";
 import { getCurrentUserDetails, getCurrentViewer } from "@/lib/auth-state";
 import { hasEnvVars } from "@/lib/utils";
 
@@ -49,8 +49,8 @@ export default async function ProtectedPage() {
       </div>
 
       <div>
-        <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">Next steps</h2>
-        <FetchDataSteps />
+        <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">Your Todos</h2>
+        <TodosDisplay />
       </div>
     </div>
   );

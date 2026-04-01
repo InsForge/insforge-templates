@@ -46,6 +46,8 @@ next-env.d.ts
 
 # InsForge & AI agent skills
 .insforge
+skills/
+skills-lock.json
 .agent
 .agents
 .augment
@@ -53,6 +55,8 @@ next-env.d.ts
 .cline
 .github/copilot*
 .kilocode
+.kiro
+.pi
 .qoder
 .qwen
 .roo
