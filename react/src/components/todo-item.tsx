@@ -22,24 +22,30 @@ export function TodoItem({ todo, onChanged }: { todo: Todo; onChanged: () => voi
 
   async function handleToggle() {
     setIsPending(true);
-    const insforge = getInsforgeClient();
-    await insforge.database
-      .from("todos")
-      .update({ is_complete: !todo.is_complete })
-      .eq("id", todo.id);
-    setIsPending(false);
-    onChanged();
+    try {
+      const insforge = getInsforgeClient();
+      await insforge.database
+        .from("todos")
+        .update({ is_complete: !todo.is_complete })
+        .eq("id", todo.id);
+      onChanged();
+    } finally {
+      setIsPending(false);
+    }
   }
 
   async function handleDelete() {
     setIsPending(true);
-    const insforge = getInsforgeClient();
-    await insforge.database
-      .from("todos")
-      .delete()
-      .eq("id", todo.id);
-    setIsPending(false);
-    onChanged();
+    try {
+      const insforge = getInsforgeClient();
+      await insforge.database
+        .from("todos")
+        .delete()
+        .eq("id", todo.id);
+      onChanged();
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
