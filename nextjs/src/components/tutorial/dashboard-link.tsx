@@ -21,9 +21,17 @@ function getProjectIdFromLinkFile(): string | null {
   try {
     const fs = require("fs");
     const path = require("path");
-    const filePath = path.resolve(process.cwd(), ".insforge", "project.json");
-    const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    return content.project_id ?? null;
+    let dir = process.cwd();
+    const root = path.parse(dir).root;
+    while (dir !== root) {
+      const filePath = path.join(dir, ".insforge", "project.json");
+      if (fs.existsSync(filePath)) {
+        const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+        return content.project_id ?? null;
+      }
+      dir = path.dirname(dir);
+    }
+    return null;
   } catch {
     return null;
   }
