@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
-import { CodeBlock } from './components/code-block';
 import { ResetPasswordForm } from './components/reset-password-form';
 import { SignInForm } from './components/sign-in-form';
 import { SignUpForm } from './components/sign-up-form';
 import { ThemeToggle } from './components/theme-toggle';
+import { TodosDisplay } from './components/todos-display';
 import { TutorialStep } from './components/tutorial-step';
 import { exchangeAuthCode, getAuthConfig } from './lib/auth';
 import { useAuth } from './lib/auth-context';
@@ -23,65 +23,6 @@ type PublicConfig = {
   passwordMinLength: number;
 };
 
-const createTable = `create table notes (
-  id bigserial primary key,
-  title text not null,
-  created_at timestamptz default now()
-);
-
-insert into notes (title)
-values
-  ('Today I connected a React app to InsForge.'),
-  ('I added authentication and a protected page.'),
-  ('Next up is real product code.');`.trim();
-
-const rls = `alter table notes enable row level security;
-
-create policy "Allow public read access" on notes
-for select
-using (true);`.trim();
-
-const notesComponent = `import { useEffect, useState } from "react";
-import { getInsforgeClient } from "../lib/insforge";
-
-type Note = {
-  id: number;
-  title: string;
-  created_at: string | null;
-};
-
-export function NotesPage() {
-  const [notes, setNotes] = useState<Note[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadNotes = async () => {
-      const insforge = getInsforgeClient();
-      const { data } = await insforge.database.from("notes").select();
-      setNotes((data as Note[] | null) ?? null);
-      setIsLoading(false);
-    };
-
-    void loadNotes();
-  }, []);
-
-  if (isLoading) {
-    return <p>Loading notes...</p>;
-  }
-
-  return <pre>{JSON.stringify(notes, null, 2)}</pre>;
-}`.trim();
-
-const notesRoute = `import { Route, Routes } from "react-router-dom";
-import { NotesPage } from "./pages/NotesPage";
-
-export default function App() {
-  return (
-    <Routes>
-      <Route path="/notes" element={<NotesPage />} />
-    </Routes>
-  );
-}`.trim();
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { viewer, isLoading, signOut } = useAuth();
@@ -199,7 +140,10 @@ function HomePage() {
                   </p>
                 </TutorialStep>
                 <TutorialStep title="Add your environment variables">
-                  <p>Set the following values before testing auth or database reads:</p>
+                  <p>
+                    Rename <code className="app-code">.env.example</code> to{' '}
+                    <code className="app-code">.env.local</code>, then set the following values:
+                  </p>
                   <ul>
                     <li>
                       <code className="app-code">VITE_INSFORGE_BASE_URL</code>
@@ -266,47 +210,8 @@ function ProtectedPage() {
         </section>
 
         <section className="app-section app-section--compact">
-          <h2>Next steps</h2>
-          <ol className="app-steps">
-            <TutorialStep title="Create a sample table and add data">
-              <p>
-                Open the <a href="https://insforge.dev/dashboard" target="_blank" rel="noreferrer">InsForge dashboard</a>, open your project, then go to <strong>SQL Editor</strong> and create a small <code className="app-code">notes</code> table with a few rows so this starter has something real to query.
-              </p>
-              <CodeBlock code={createTable} />
-            </TutorialStep>
-
-            <TutorialStep title="Enable Row Level Security (RLS)">
-              <p>
-                If you want this starter to query <code className="app-code">notes</code> with RLS enabled, add a read policy for the table. You can do this in your project&apos;s <strong>Table Editor</strong> or via the <strong>SQL Editor</strong>.
-              </p>
-              <p>For example, you can run the following SQL to allow public read access:</p>
-              <CodeBlock code={rls} />
-            </TutorialStep>
-
-            <TutorialStep title="Query InsForge data from React">
-              <p>
-                To query data in React, create a new component like <code className="app-code">src/pages/NotesPage.tsx</code> and add the following:
-              </p>
-              <CodeBlock code={notesComponent} />
-              <p>
-                Then register a route for it in your main router file, which in this starter is{" "}
-                <code className="app-code">src/App.tsx</code>:
-              </p>
-              <CodeBlock code={notesRoute} />
-              <p>
-                After that, start the app and open <code className="app-code">/notes</code> in the
-                browser, for example <code className="app-code">http://localhost:5173/notes</code>,
-                to verify the query works.
-              </p>
-            </TutorialStep>
-
-            <TutorialStep title="Build the real product">
-              <p>
-                At this point you have auth, protected routing, and a starter query pattern.
-                You&apos;re ready to launch your product to the world! 🚀
-              </p>
-            </TutorialStep>
-          </ol>
+          <h2>Your Todos</h2>
+          <TodosDisplay />
         </section>
       </div>
     </AppLayout>
