@@ -1,6 +1,7 @@
 import { createClient } from "@insforge/sdk";
 
 let serverClient: ReturnType<typeof createClient> | null = null;
+let serverClientConfig: { baseUrl: string; anonKey: string } | null = null;
 
 function getInsforgeConfig() {
   const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL;
@@ -27,8 +28,16 @@ export function createInsforgeServerClient(options?: { accessToken?: string }) {
 }
 
 export function getInsforgeServerClient() {
-  if (!serverClient) {
+  const config = getInsforgeConfig();
+
+  if (
+    !serverClient ||
+    !serverClientConfig ||
+    serverClientConfig.baseUrl !== config.baseUrl ||
+    serverClientConfig.anonKey !== config.anonKey
+  ) {
     serverClient = createInsforgeServerClient();
+    serverClientConfig = config;
   }
 
   return serverClient;

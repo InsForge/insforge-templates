@@ -36,7 +36,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
       return;
     }
 
-    window.location.href = "/";
+    window.location.href = "/protected";
   }
 
   async function handleVerify(event: React.FormEvent) {
@@ -47,7 +47,7 @@ export function SignUpForm({ providers }: { providers: string[] }) {
     const result = await verifyEmail(email.trim(), otp.trim());
 
     if (result.success) {
-      window.location.href = "/";
+      window.location.href = "/protected";
       return;
     }
 

@@ -20,7 +20,7 @@ export function SignInForm({ providers }: { providers: string[] }) {
     const result = await signIn(email.trim(), password);
 
     if (result.success) {
-      window.location.href = "/";
+      window.location.href = "/protected";
       return;
     }
 

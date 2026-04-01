@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const result = await exchangeAuthCode(code);
 
   if (result.success) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/protected", request.url));
   }
 
   return NextResponse.redirect(new URL("/auth/sign-in", request.url));

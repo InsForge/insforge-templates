@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Next.js Starter',
-  description: 'A clean Next.js and Tailwind CSS starter template for building your app.',
+  title: "Next.js InsForge Starter",
+  description: "A starter template for building Next.js apps with InsForge auth and data flows.",
 };
 
 export default function RootLayout({

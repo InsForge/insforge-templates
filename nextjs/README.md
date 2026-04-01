@@ -32,9 +32,11 @@ Check out the live demo: [insforge-nextjs-starter-beta.vercel.app](https://insfo
   - Server Actions
   - It just works
 - [InsForge](https://insforge.dev) auth configured to use cookies across the app
-- Optional Google and GitHub OAuth providers
-- Styling with [Tailwind CSS](https://tailwindcss.com)
 - Server-side auth actions using `@insforge/sdk`
+- Optional Google and GitHub OAuth providers
+- Starter homepage with environment setup guidance
+- Protected example route that displays the signed-in user
+- Styling with [Tailwind CSS](https://tailwindcss.com)
 - Ready for local development and Vercel deployment
 
 ## Quick launch
