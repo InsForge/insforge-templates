@@ -8,7 +8,6 @@
   </a>
 
   <p>
-    <a href="https://insforge.dev"><img src="https://insforge.dev/badge-made-with-insforge-dark.svg" alt="Made with InsForge"></a>
     <a href="https://github.com/InsForge/InsForge"><img src="https://img.shields.io/badge/github-InsForge-181717?logo=github&logoColor=white" alt="GitHub"></a>
     <a href="https://x.com/InsForge_dev"><img src="https://img.shields.io/badge/X-%40InsForge__dev-000000?logo=x&logoColor=white" alt="X"></a>
     <a href="https://discord.gg/DvBtaEc9Jz"><img src="https://img.shields.io/badge/community-Discord-5865F2?logo=discord&logoColor=white" alt="Join community"></a>
