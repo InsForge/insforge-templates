@@ -29,6 +29,8 @@ dist-ssr
 
 # InsForge & AI agent skills
 .insforge
+skills/
+skills-lock.json
 .agent
 .agents
 .augment
@@ -36,6 +38,8 @@ dist-ssr
 .cline
 .github/copilot*
 .kilocode
+.kiro
+.pi
 .qoder
 .qwen
 .roo
