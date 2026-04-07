@@ -9,8 +9,7 @@
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#quick-launch"><strong>Quick launch</strong></a> ·
   <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#environment-variables"><strong>Environment Variables</strong></a>
+  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a>
 </p>
 
 <p align="center">
@@ -20,7 +19,7 @@
 
 ## Demo
 
-Check out the live demo: [insforge-react-starter.vercel.app](https://insforge-react-starter.vercel.app/)
+Check out the live demo: [demoreact.insforge.site](https://demoreact.insforge.site)
 
 ## Features
 
@@ -52,39 +51,45 @@ From there:
 1. Choose the React starter template
 2. Follow the prompt flow to create or connect your InsForge project
 3. Let the CLI handle the initial setup
-4. Choose to deploy with [Vercel](https://vercel.com) from the guided flow
+4. Choose to deploy with [InsForge](https://insforge.dev) from the guided flow
 
 Use the sections below if you want to set up the starter manually.
 
 ## Clone and run locally
 
-1. Create an InsForge project in your dashboard.
-
-2. Clone this repository and move into the starter directory.
+1. Clone this repository and move into the starter directory.
 
 ```bash
 git clone https://github.com/InsForge/insforge-templates.git
 cd insforge-templates/react
 ```
 
-3. Install dependencies.
+2. Install dependencies.
 
 ```bash
 npm install
 ```
 
-4. Copy `env.example` to `.env.local` and update the values with your InsForge project settings.
+3. Go to the [InsForge dashboard](https://insforge.dev), create a project, and click **Connect** → **CLI** to get the link command:
+
+```bash
+npx @insforge/cli link --project-id <your-project-id>
+```
+
+4. Copy `env.example` to `.env.local` and update the values with your InsForge project settings (find these in the InsForge dashboard under **Connect** → **API Keys**):
 
 ```bash
 cp env.example .env.local
 ```
 
-Replace:
+Set the following values in `.env.local`:
 
-- `VITE_INSFORGE_BASE_URL` with the `Project URL`
-- `VITE_INSFORGE_ANON_KEY` with the `Anon Key`
+```env
+VITE_INSFORGE_BASE_URL=https://your-project.region.insforge.app
+VITE_INSFORGE_ANON_KEY=your-anon-key
+```
 
-You can find both in your InsForge dashboard under `Connect` → `API Keys`.
+You can find the project URL and anon key in your InsForge project settings.
 
 5. Start the development server.
 
@@ -110,14 +115,3 @@ After importing into Vercel:
 3. If you test locally as well, also allow `http://localhost:5173/auth/callback`
 
 The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
-
-## Environment Variables
-
-Set the following values in `.env.local`:
-
-```env
-VITE_INSFORGE_BASE_URL=https://your-project.region.insforge.app
-VITE_INSFORGE_ANON_KEY=your-anon-key
-```
-
-You can find the project URL and anon key in your InsForge project settings.
