@@ -9,8 +9,7 @@
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#quick-launch"><strong>Quick launch</strong></a> ·
   <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#environment-variables"><strong>Environment Variables</strong></a>
+  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a>
 </p>
 
 <p align="center">
