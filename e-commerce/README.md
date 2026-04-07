@@ -19,7 +19,7 @@ This starter includes a public storefront, seeded catalog data, customer authent
 
 ## Demo
 
-Demo: [insforge-ecommerce.vercel.app](https://insforge-ecommerce.vercel.app/)
+Demo: [demoecommerce.insforge.site](https://demoecommerce.insforge.site)
 
 The live demo includes a seeded storefront, category browsing, product detail pages, cart and checkout flows, and customer account pages so you can evaluate the starter before making any changes.
 
@@ -55,13 +55,19 @@ Use the local setup below if you want to inspect the repo, edit environment vari
    npm install
    ```
 
-3. Copy the example environment file:
+3. Go to the [InsForge dashboard](https://insforge.dev), create a project, and click **Connect** → **CLI** to get the link command:
+
+   ```bash
+   npx @insforge/cli link --project-id <your-project-id>
+   ```
+
+4. Copy the example environment file:
 
    ```bash
    cp .env.example .env.local
    ```
 
-4. Fill in the required values:
+5. Fill in the required values (find these in the InsForge dashboard under **Connect** → **API Keys**):
 
    ```env
    NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
@@ -69,27 +75,31 @@ Use the local setup below if you want to inspect the repo, edit environment vari
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-5. Apply the included schema and seed data to your InsForge project:
+6. Apply the included schema and seed data to your InsForge project. You can either ask your agent using this prompt:
+
+   > help me create table and seed data from migrations/db_init.sql
+
+   Or run the command directly:
 
    ```bash
-   insforge db import migrations/db_init.sql
+   npx @insforge/cli db import migrations/db_init.sql
    ```
 
    This migration creates the storefront tables, checkout functions, RLS policies, the `product-images` storage bucket record, and the seeded 15-product catalog.
 
-6. Start the dev server:
+7. Start the dev server:
 
    ```bash
    npm run dev
    ```
 
-7. Open [http://localhost:3000](http://localhost:3000)
+8. Open [http://localhost:3000](http://localhost:3000)
 
 ## Deploy to Vercel
 
 After cloning the repo and running the starter locally, you can deploy it on Vercel:
 
-[![Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Fe-commerce&root-directory=e-commerce&project-name=insforge-ecommerce&repository-name=insforge-ecommerce&env=NEXT_PUBLIC_INSFORGE_URL,NEXT_PUBLIC_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Fe-commerce&demo-title=InsForge%20E-Commerce&demo-description=A%20full-stack%20e-commerce%20starter%20built%20with%20Next.js%2C%20Tailwind%20CSS%2C%20and%20InsForge.&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FInsForge%2Finsforge-templates%2Fmain%2Fe-commerce%2Fpublic%2Fe-commerce-readme-cover.png)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Fe-commerce&root-directory=e-commerce&project-name=insforge-ecommerce&repository-name=insforge-ecommerce&env=NEXT_PUBLIC_INSFORGE_URL,NEXT_PUBLIC_INSFORGE_ANON_KEY&envDescription=Connect%20your%20InsForge%20project%20URL%20and%20anon%20key.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Fe-commerce&demo-title=InsForge%20E-Commerce&demo-description=A%20full-stack%20e-commerce%20starter%20built%20with%20Next.js%2C%20Tailwind%20CSS%2C%20and%20InsForge.&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FInsForge%2Finsforge-templates%2Fmain%2Fe-commerce%2Fpublic%2Fe-commerce-readme-cover.png)
 
 1. Set `NEXT_PUBLIC_INSFORGE_URL`
 2. Set `NEXT_PUBLIC_INSFORGE_ANON_KEY`

@@ -32,7 +32,7 @@ By default, authenticated users land on a dedicated `Developer Guide` page. If y
 
 ## Demo
 
-Demo: [3pvjpunq.insforge.site](https://3pvjpunq.insforge.site/)
+Demo: [democrm.insforge.site](https://democrm.insforge.site)
 
 The template includes a dedicated in-app developer guide, a CRM dashboard, lead and client management, and a seeded pipeline flow for first-run evaluation.
 
@@ -69,12 +69,13 @@ cd insforge-templates/crm
 npm install
 ```
 
-### 2. Create an InsForge project
+### 2. Connect your InsForge project
 
-Create a new [InsForge](https://insforge.dev) project in your dashboard. You will need:
+Go to the [InsForge dashboard](https://insforge.dev), create a project, and click **Connect** → **CLI** to get the link command:
 
-- your project URL, available in `Project -> Settings`
-- your anon/public key, available in `Project -> Settings`
+```bash
+npx @insforge/cli link --project-id <your-project-id>
+```
 
 ### 3. Configure environment variables
 
@@ -84,7 +85,7 @@ Copy the example file:
 cp .env.example .env.local
 ```
 
-Then populate `.env.local` with your project values:
+Then populate `.env.local` with your project values (find these in the InsForge dashboard under **Connect** → **API Keys**):
 
 
 | Variable                        | Required                 | Description                                                       |
@@ -98,10 +99,14 @@ For local development, set `NEXT_PUBLIC_APP_URL=http://localhost:3000`.
 
 ### 4. Apply the CRM schema
 
-Run the included migration against your InsForge project:
+You can either ask your agent using this prompt:
+
+> help me create table and seed data from migrations/db_init.sql
+
+Or run the command directly:
 
 ```bash
-insforge db import migrations/db_init.sql
+npx @insforge/cli db import migrations/db_init.sql
 ```
 
 This creates the CRM tables, RLS policies, storage bucket, and helper RPCs used by the starter.
@@ -125,7 +130,7 @@ To deploy the starter on Vercel:
 3. Set `NEXT_PUBLIC_INSFORGE_ANON_KEY`
 4. Set `NEXT_PUBLIC_APP_URL` to your deployed app URL
 5. Deploy the project
-6. Run `insforge db import migrations/db_init.sql` against the linked InsForge project if you have not already applied the schema
+6. Run `npx @insforge/cli db import migrations/db_init.sql` against the linked InsForge project if you have not already applied the schema
 
 After deploying, sign in, confirm the dashboard loads successfully, and seed the default CRM data if needed.
 

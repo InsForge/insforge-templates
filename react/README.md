@@ -20,7 +20,7 @@
 
 ## Demo
 
-Check out the live demo: [insforge-react-starter.vercel.app](https://insforge-react-starter.vercel.app/)
+Check out the live demo: [demoreact.insforge.site](https://demoreact.insforge.site)
 
 ## Features
 
@@ -58,22 +58,26 @@ Use the sections below if you want to set up the starter manually.
 
 ## Clone and run locally
 
-1. Create an InsForge project in your dashboard.
-
-2. Clone this repository and move into the starter directory.
+1. Clone this repository and move into the starter directory.
 
 ```bash
 git clone https://github.com/InsForge/insforge-templates.git
 cd insforge-templates/react
 ```
 
-3. Install dependencies.
+2. Install dependencies.
 
 ```bash
 npm install
 ```
 
-4. Copy `env.example` to `.env.local` and update the values with your InsForge project settings.
+3. Go to the [InsForge dashboard](https://insforge.dev), create a project, and click **Connect** → **CLI** to get the link command:
+
+```bash
+npx @insforge/cli link --project-id <your-project-id>
+```
+
+4. Copy `env.example` to `.env.local` and update the values with your InsForge project settings (find these in the InsForge dashboard under **Connect** → **API Keys**):
 
 ```bash
 cp env.example .env.local
@@ -83,8 +87,6 @@ Replace:
 
 - `VITE_INSFORGE_BASE_URL` with the `Project URL`
 - `VITE_INSFORGE_ANON_KEY` with the `Anon Key`
-
-You can find both in your InsForge dashboard under `Connect` → `API Keys`.
 
 5. Start the development server.
 

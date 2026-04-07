@@ -32,7 +32,7 @@
 
 ## Demo
 
-Demo: [insforge-chatbot-starter.vercel.app](https://insforge-chatbot-starter.vercel.app/)
+Demo: [demochatbot.insforge.site](https://demochatbot.insforge.site)
 
 The starter includes a simple first-try chat experience, persisted history, file uploads, authentication, and optional routing through the Vercel AI Gateway.
 
@@ -68,13 +68,19 @@ Use the local setup below if you want to inspect the repo, edit environment vari
    npm install
    ```
 
-3. Copy the example environment file:
+3. Go to the [InsForge dashboard](https://insforge.dev), create a project, and click **Connect** → **CLI** to get the link command:
+
+   ```bash
+   npx @insforge/cli link --project-id <your-project-id>
+   ```
+
+5. Copy the example environment file:
 
    ```bash
    cp .env.example .env.local
    ```
 
-4. Fill in the required values:
+6. Fill in the required values (find these in the InsForge dashboard under **Connect** → **API Keys**):
 
    ```env
    NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
@@ -82,21 +88,25 @@ Use the local setup below if you want to inspect the repo, edit environment vari
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-5. Apply the included schema to your InsForge project:
+7. Apply the included schema and seed data to your InsForge project. You can either ask your agent using this prompt:
+
+   > help me create table and seed data from migrations/db_init.sql
+
+   Or run the command directly:
 
    ```bash
-   insforge db import migrations/db_init.sql
+   npx @insforge/cli db import migrations/db_init.sql
    ```
 
    This migration creates the chat tables and also inserts the `chat-attachments` storage bucket record used by file uploads.
 
-6. Start the dev server:
+8. Start the dev server:
 
    ```bash
    npm run dev
    ```
 
-7. Open [http://localhost:3000](http://localhost:3000)
+9. Open [http://localhost:3000](http://localhost:3000)
 
 ## Vercel AI Gateway
 
