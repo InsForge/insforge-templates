@@ -36,7 +36,7 @@ From there:
 1. Choose the e-commerce template
 2. Create or connect your InsForge project
 3. Let the CLI set up the project files
-4. Choose to deploy with [Vercel](https://vercel.com) automatically from the guided flow
+4. Choose to deploy with [InsForge](https://insforge.dev) automatically from the guided flow
 
 Use the local setup below if you want to inspect the repo, edit environment variables manually, or control the setup step by step.
 

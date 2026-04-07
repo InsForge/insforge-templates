@@ -52,7 +52,7 @@ From there:
 1. Choose the React starter template
 2. Follow the prompt flow to create or connect your InsForge project
 3. Let the CLI handle the initial setup
-4. Choose to deploy with [Vercel](https://vercel.com) from the guided flow
+4. Choose to deploy with [InsForge](https://insforge.dev) from the guided flow
 
 Use the sections below if you want to set up the starter manually.
 
@@ -83,10 +83,14 @@ npx @insforge/cli link --project-id <your-project-id>
 cp env.example .env.local
 ```
 
-Replace:
+Set the following values in `.env.local`:
 
-- `VITE_INSFORGE_BASE_URL` with the `Project URL`
-- `VITE_INSFORGE_ANON_KEY` with the `Anon Key`
+```env
+VITE_INSFORGE_BASE_URL=https://your-project.region.insforge.app
+VITE_INSFORGE_ANON_KEY=your-anon-key
+```
+
+You can find the project URL and anon key in your InsForge project settings.
 
 5. Start the development server.
 
@@ -112,14 +116,3 @@ After importing into Vercel:
 3. If you test locally as well, also allow `http://localhost:5173/auth/callback`
 
 The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
-
-## Environment Variables
-
-Set the following values in `.env.local`:
-
-```env
-VITE_INSFORGE_BASE_URL=https://your-project.region.insforge.app
-VITE_INSFORGE_ANON_KEY=your-anon-key
-```
-
-You can find the project URL and anon key in your InsForge project settings.

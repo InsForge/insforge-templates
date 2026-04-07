@@ -51,7 +51,7 @@ From there:
 1. Choose the CRM template
 2. Follow the prompt flow to create or connect your InsForge project
 3. Let the CLI handle the initial setup
-4. Choose to deploy with [Vercel](https://vercel.com) automatically from the guided flow
+4. Choose to deploy with [InsForge](https://insforge.dev) automatically from the guided flow
 
 Use the step-by-step setup below if you want to inspect the repo, edit environment variables manually, or control the migration flow yourself.
 

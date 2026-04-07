@@ -52,7 +52,7 @@ From there:
 1. Choose the Next.js starter template
 2. Follow the prompt flow to create or connect your InsForge project
 3. Let the CLI handle the initial setup
-4. Choose to deploy with [Vercel](https://vercel.com) from the guided flow
+4. Choose to deploy with [InsForge](https://insforge.dev) from the guided flow
 
 Use the sections below if you want to set up the starter manually.
 
@@ -83,11 +83,15 @@ npx @insforge/cli link --project-id <your-project-id>
 cp .env.example .env.local
 ```
 
-Replace:
+Set the following values in `.env.local`:
 
-- `NEXT_PUBLIC_INSFORGE_URL` with the `Project URL`
-- `NEXT_PUBLIC_INSFORGE_ANON_KEY` with the `Anon Key`
-- `NEXT_PUBLIC_APP_URL` with `http://localhost:3000`
+```env
+NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
+NEXT_PUBLIC_INSFORGE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_APP_URL=https://your-project.insforge.site
+```
+
+You can find the project URL and anon key in your InsForge project settings.
 
 5. Start the development server.
 
@@ -108,15 +112,3 @@ Click [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain&root-directory=nextjs&project-name=insforge-nextjs-starter&repository-name=insforge-nextjs-starter&env=NEXT_PUBLIC_INSFORGE_URL,NEXT_PUBLIC_INSFORGE_ANON_KEY,NEXT_PUBLIC_APP_URL&envDescription=Connect%20your%20InsForge%20project%20URL%2C%20anon%20key%2C%20and%20app%20URL.&external-id=https%3A%2F%2Fgithub.com%2FInsForge%2Finsforge-templates%2Ftree%2Fmain%2Fnextjs&demo-title=Next.js%20InsForge%20Starter&demo-description=A%20clean%20Next.js%20starter%20with%20InsForge%20auth%20and%20Tailwind%20CSS.&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FInsForge%2Finsforge-templates%2Fmain%2Fnextjs%2Fassets%2Fnextjs-starter.png)
 
 The above will also clone the starter kit to your GitHub, so you can clone it locally and continue development there.
-
-## Environment Variables
-
-Set the following values in `.env.local`:
-
-```env
-NEXT_PUBLIC_INSFORGE_URL=https://your-project.region.insforge.app
-NEXT_PUBLIC_INSFORGE_ANON_KEY=your-anon-key
-NEXT_PUBLIC_APP_URL=https://your-project.insforge.site
-```
-
-You can find the project URL and anon key in your InsForge project settings.
