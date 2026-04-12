@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS todo (
   file_key TEXT
 );
 
+-- Grant sequence permissions so anon/authenticated can insert rows
+GRANT USAGE, SELECT ON SEQUENCE todo_id_seq TO anon, authenticated;
+
 -- Create the storage bucket for todo attachments
 INSERT INTO storage.buckets (name, public)
 VALUES ('todo-attachments', true)
