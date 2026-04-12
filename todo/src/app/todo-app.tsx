@@ -64,13 +64,13 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       });
   }
 
-  function handleToggle(id: number, currentValue: boolean) {
+  async function handleToggle(id: number, currentValue: boolean) {
     setTodos((prev) =>
       prev.map((t) =>
         t.id === id ? { ...t, is_completed: !currentValue } : t
       )
     );
-    insforge.database
+    await insforge.database
       .from("todo")
       .update({ is_completed: !currentValue })
       .eq("id", id);
