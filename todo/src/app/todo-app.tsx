@@ -56,7 +56,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       .insert([{ text: trimmed }])
       .select()
       .then(({ data }) => {
-        if (data) {
+        if (data?.length) {
           setTodos((prev) =>
             prev.map((t) => (t.id === optimistic.id ? (data[0] as Todo) : t))
           );
