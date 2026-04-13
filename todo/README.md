@@ -5,6 +5,7 @@
 </p>
 
 <p align="center">
+  <a href="https://demotodo.insforge.site"><strong>Live Demo</strong></a> ·
   <a href="#features"><strong>Features</strong></a> ·
   <a href="#quick-launch"><strong>Quick launch</strong></a> ·
   <a href="#database-setup"><strong>Database setup</strong></a> ·
@@ -17,7 +18,7 @@
 - Simple to-do list UI with add, toggle, and display
 - Built with [Next.js](https://nextjs.org) App Router and [Tailwind CSS](https://tailwindcss.com)
 - [InsForge](https://insforge.dev) database for persistent storage
-- Login / Sign Up auth flow (powered by InsForge)
+
 
 ## Quick launch
 
@@ -31,22 +32,10 @@ Choose the **To Do List** template and follow the prompts.
 
 ## Database setup
 
-Initialize the `todo` table by running the included SQL script against your InsForge database:
-
-```sql
--- db_init.sql
-CREATE TABLE IF NOT EXISTS todo (
-  id SERIAL PRIMARY KEY,
-  text TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  is_completed BOOLEAN NOT NULL DEFAULT FALSE
-);
-```
-
-You can run this from the InsForge dashboard SQL editor or via the CLI:
+Apply the database schema (creates the `todo` table, grants permissions, and sets up the storage bucket):
 
 ```bash
-npx @insforge/cli db query --sql "$(cat db_init.sql)"
+npx @insforge/cli db import migrations/db_init.sql
 ```
 
 ## Clone and run locally
