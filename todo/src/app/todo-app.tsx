@@ -14,18 +14,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
   const [input, setInput] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tab, setTab] = useState<"ongoing" | "completed">("ongoing");
-  const [showAuth, setShowAuth] = useState(false);
-  const [isSignedUp, setIsSignedUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [authStep, setAuthStep] = useState<"form" | "verify">("form");
-  const [authError, setAuthError] = useState("");
-
   useEffect(() => {
-    insforge.auth.getCurrentUser().then(({ data }) => {
-      if (data?.user) setIsSignedUp(true);
-    });
     fetchTodos();
   }, []);
 
@@ -76,136 +65,12 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       .eq("id", id);
   }
 
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault();
-    setAuthError("");
-    const { data, error } = await insforge.auth.signUp({
-      email,
-      password,
-    });
-    if (error) {
-      setAuthError(error.message);
-      return;
-    }
-    if (data?.requireEmailVerification) {
-      setAuthStep("verify");
-    } else {
-      setIsSignedUp(true);
-      setShowAuth(false);
-    }
-  }
-
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
-    setAuthError("");
-    const { error } = await insforge.auth.verifyEmail({ email, otp });
-    if (error) {
-      setAuthError(error.message);
-      return;
-    }
-    setIsSignedUp(true);
-    setShowAuth(false);
-  }
-
   const filteredTodos = todos.filter((todo) =>
     tab === "ongoing" ? !todo.is_completed : todo.is_completed
   );
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Nav */}
-      <nav className="flex h-16 w-full items-center justify-end gap-3 px-6">
-        {!isSignedUp && (
-          <button
-            onClick={() => setShowAuth(true)}
-            className="rounded-[4px] bg-white px-3 py-2 text-sm font-medium text-black"
-          >
-            Sign Up
-          </button>
-        )}
-      </nav>
-
-      {/* Auth Modal */}
-      {showAuth && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setShowAuth(false)}
-        >
-          <div
-            className="flex w-[320px] flex-col gap-4 rounded-xl bg-[#2a2a2a] p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {authStep === "form" ? (
-              <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-                <h2 className="text-center text-lg font-semibold text-white">
-                  Sign Up
-                </h2>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  required
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-[#a3a3a3] focus:outline-none"
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  required
-                  minLength={6}
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-[#a3a3a3] focus:outline-none"
-                />
-                {authError && (
-                  <p className="text-xs text-red-400">{authError}</p>
-                )}
-                <button
-                  type="submit"
-                  className="rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-black transition hover:bg-gray-100"
-                >
-                  Sign Up
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAuth(false)}
-                  className="text-sm text-[#a3a3a3] transition hover:text-white"
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerify} className="flex flex-col gap-4">
-                <h2 className="text-center text-lg font-semibold text-white">
-                  Verify Email
-                </h2>
-                <p className="text-center text-sm text-[#a3a3a3]">
-                  Enter the 6-digit code sent to {email}
-                </p>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="123456"
-                  required
-                  maxLength={6}
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5 text-center text-lg tracking-widest text-white placeholder:text-[#a3a3a3] focus:outline-none"
-                />
-                {authError && (
-                  <p className="text-xs text-red-400">{authError}</p>
-                )}
-                <button
-                  type="submit"
-                  className="rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-black transition hover:bg-gray-100"
-                >
-                  Verify
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Main */}
       <main className="flex flex-1 items-center justify-center">
         <div className="flex w-[343px] flex-col items-center gap-7">
