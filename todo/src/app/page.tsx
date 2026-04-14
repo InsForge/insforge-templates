@@ -23,7 +23,7 @@ function getProjectIdFromLinkFile(): string | null {
 function getDashboardUrl(): string {
   const projectId = getProjectIdFromLinkFile();
   if (projectId) {
-    return `https://insforge.dev/dashboard/project/${projectId}`;
+    return `https://insforge.dev/dashboard/project/${projectId}?route=/dashboard/database/tables`;
   }
   return "https://insforge.dev/dashboard";
 }
