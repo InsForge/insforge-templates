@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { insforge } from "./insforge-client";
 
 interface Todo {
-  id: number;
+  id: string;
   text: string;
   created_at: string;
   is_completed: boolean;
@@ -13,7 +13,6 @@ interface Todo {
 export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
   const [input, setInput] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tab, setTab] = useState<"ongoing" | "completed">("ongoing");
   useEffect(() => {
     fetchTodos();
   }, []);
@@ -34,7 +33,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
     if (!trimmed) return;
     setInput("");
     const optimistic: Todo = {
-      id: -Date.now(),
+      id: crypto.randomUUID(),
       text: trimmed,
       created_at: new Date().toISOString(),
       is_completed: false,
@@ -53,7 +52,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       });
   }
 
-  async function handleToggle(id: number, currentValue: boolean) {
+  async function handleToggle(id: string, currentValue: boolean) {
     setTodos((prev) =>
       prev.map((t) =>
         t.id === id ? { ...t, is_completed: !currentValue } : t
@@ -65,10 +64,6 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       .eq("id", id);
   }
 
-  const filteredTodos = todos.filter((todo) =>
-    tab === "ongoing" ? !todo.is_completed : todo.is_completed
-  );
-
   return (
     <div className="flex min-h-screen flex-col">
       {/* Main */}
@@ -78,35 +73,8 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
             To Do List
           </h1>
 
-          {/* Toggle nav */}
-          <div className="flex w-full overflow-hidden rounded-[4px] border border-white/[0.08] bg-white/[0.04]">
-            <button
-              type="button"
-              onClick={() => setTab("ongoing")}
-              className={`flex-1 px-3 py-1.5 text-sm transition ${
-                tab === "ongoing"
-                  ? "bg-[#323232] text-white"
-                  : "text-[#a3a3a3] hover:text-white"
-              }`}
-            >
-              Ongoing
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("completed")}
-              className={`flex-1 px-3 py-1.5 text-sm transition ${
-                tab === "completed"
-                  ? "bg-[#323232] text-white"
-                  : "text-[#a3a3a3] hover:text-white"
-              }`}
-            >
-              Completed
-            </button>
-          </div>
-
-          {/* Add todo (only in ongoing tab) */}
-          {tab === "ongoing" && (
-            <form onSubmit={handleAdd} className="flex w-full gap-3">
+          {/* Add todo */}
+          <form onSubmit={handleAdd} className="flex w-full gap-3">
               <input
                 type="text"
                 value={input}
@@ -133,11 +101,10 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
                 </svg>
               </button>
             </form>
-          )}
 
           {/* Todo list */}
           <ul className="flex w-full flex-col gap-3">
-            {filteredTodos.map((todo) => (
+            {todos.map((todo) => (
               <li
                 key={todo.id}
                 className="flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white px-3.5 py-2.5 transition"
@@ -167,7 +134,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
                     </svg>
                   )}
                 </button>
-                <p className="min-w-0 flex-1 text-sm text-black">
+                <p className={`min-w-0 flex-1 text-sm ${todo.is_completed ? "text-[#a3a3a3] line-through" : "text-black"}`}>
                   {todo.text}
                 </p>
               </li>
