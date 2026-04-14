@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { insforge } from "./insforge-client";
 
 interface Todo {
-  id: number;
+  id: string;
   text: string;
   created_at: string;
   is_completed: boolean;
@@ -33,7 +33,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
     if (!trimmed) return;
     setInput("");
     const optimistic: Todo = {
-      id: -Date.now(),
+      id: crypto.randomUUID(),
       text: trimmed,
       created_at: new Date().toISOString(),
       is_completed: false,
@@ -52,7 +52,7 @@ export function TodoApp({ dashboardUrl }: { dashboardUrl: string }) {
       });
   }
 
-  async function handleToggle(id: number, currentValue: boolean) {
+  async function handleToggle(id: string, currentValue: boolean) {
     setTodos((prev) =>
       prev.map((t) =>
         t.id === id ? { ...t, is_completed: !currentValue } : t
