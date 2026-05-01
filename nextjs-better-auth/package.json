@@ -11,7 +11,7 @@
     "setup": "npm run auth:migrate && npm run db:setup"
   },
   "dependencies": {
-    "@insforge/sdk": "^1.3.0",
+    "@insforge/sdk": "^1.2.6",
     "better-auth": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.0.0",
