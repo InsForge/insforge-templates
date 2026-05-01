@@ -1,0 +1,30 @@
+{
+  "name": "nextjs-better-auth",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "auth:migrate": "better-auth migrate --config ./lib/auth.ts -y",
+    "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
+    "setup": "npm run auth:migrate && npm run db:setup"
+  },
+  "dependencies": {
+    "@insforge/sdk": "^1.3.0",
+    "better-auth": "^1.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^15.0.0",
+    "pg": "^8.13.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}
