@@ -54,6 +54,14 @@ If you prefer to inspect a template manually, clone this repository, move into a
 | [`crm`](./crm) | Next.js App Router | Building an authenticated internal tool or CRM | Sales pipeline, lead management, client flows, RLS, seeded defaults |
 | [`e-commerce`](./e-commerce) | Next.js App Router | Launching a storefront with user accounts and checkout | Seeded catalog, product pages, cart, checkout, account area, analytics |
 
+### Auth Provider Overlays
+
+Not standalone templates. These are scaffolds the CLI overlays on top of an existing project (or a freshly created template) when you pass `--auth <provider>`. They never appear in `npx @insforge/cli create`'s template picker — only `--auth better-auth` triggers download.
+
+| Overlay | Provider | Trigger |
+| --- | --- | --- |
+| [`auth-providers/better-auth`](./auth-providers/better-auth) | [Better Auth](https://better-auth.com) (self-hosted, runs in your own Postgres) | `npx @insforge/cli create --template nextjs --auth better-auth` (fresh project) or `npx @insforge/cli link --auth better-auth` (existing Next.js project) |
+
 ## Features
 
 - Framework starters and app templates built with [Next.js](https://nextjs.org), [React](https://react.dev), and [Vite](https://vite.dev)
