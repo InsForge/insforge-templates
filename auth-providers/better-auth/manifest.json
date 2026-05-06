@@ -13,8 +13,8 @@
     "src/app/notes/page.tsx",
     "src/app/sign-in/page.tsx",
     "src/app/sign-up/page.tsx",
-    "sql/01-init.sql",
-    "sql/02-revoke.sql",
+    "sql/01-schema.sql",
+    "sql/02-app.sql",
     "scripts/setup-db.mjs"
   ],
   "packageJsonPatch": {
@@ -31,10 +31,11 @@
     },
     "scripts": {
       "auth:migrate": "better-auth migrate --config ./src/lib/auth.ts -y",
-      "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
-      "setup": "npm run auth:migrate && npm run db:setup"
+      "db:schema": "node --env-file=.env.local scripts/setup-db.mjs 01-",
+      "db:app": "node --env-file=.env.local scripts/setup-db.mjs 02-",
+      "setup": "npm run db:schema && npm run auth:migrate && npm run db:app"
     }
   },
   "envExampleAppend": "# ─── Better Auth + InsForge bridge (added by --auth better-auth) ────────\n# Postgres for BA's own user/session/account/verification tables.\n# Self-hosted: your InsForge stack's Postgres (use a fully-granted role).\n# Cloud: bring your own Postgres — InsForge cloud doesn't expose direct DB.\nDATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/insforge\n\nBETTER_AUTH_SECRET=replace-with-32-random-bytes\nBETTER_AUTH_URL=http://localhost:3000\nNEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000\n\n# Same secret InsForge uses internally; the bridge route signs HS256 with this.\nINSFORGE_JWT_SECRET=replace-with-output-of-cli-secrets-get-JWT_SECRET\nNEXT_PUBLIC_INSFORGE_BASE_URL=http://localhost:7130\nNEXT_PUBLIC_INSFORGE_ANON_KEY=replace-with-anon-key-from-insforge-dashboard",
-  "nextSteps": "Better Auth scaffold installed. Next:\n\n  1. Set DATABASE_URL in .env.local (where Better Auth's tables will live).\n  2. npm install\n  3. npm run setup     # runs BA migrations + RLS helper + REVOKE block\n  4. npm run dev       # then open http://localhost:3000/sign-up"
+  "nextSteps": "Better Auth scaffold installed. Next:\n\n  1. Set DATABASE_URL in .env.local (where Better Auth's tables will live).\n  2. npm install\n  3. npm run setup     # creates better_auth schema, runs BA migrate, sets up notes + RLS\n  4. npm run dev       # then open http://localhost:3000/sign-up"
 }

@@ -1,6 +1,8 @@
--- Run AFTER `npx @better-auth/cli migrate` has created the four BA tables.
--- This sets up the requesting_user_id() helper, an example notes table with
--- per-user RLS, and (optionally) realtime support.
+-- Run AFTER `npx @better-auth/cli migrate` has created the four BA tables in
+-- the `better_auth` schema (see 01-schema.sql + lib/auth.ts search_path).
+-- This sets up the requesting_user_id() helper, an example notes table in
+-- `public` with per-user RLS keyed to better_auth.user, and (optionally)
+-- realtime support.
 
 -- 0. Ensure gen_random_uuid() is available (idempotent — pgcrypto is built-in).
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -19,7 +21,7 @@ $$;
 CREATE TABLE IF NOT EXISTS public.notes (
   id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   user_id text NOT NULL DEFAULT public.requesting_user_id()
-    REFERENCES public."user"(id) ON DELETE CASCADE,
+    REFERENCES better_auth."user"(id) ON DELETE CASCADE,
   body text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
 );
