@@ -24,9 +24,9 @@ The CLI reads `manifest.json`, copies the files listed under `files`, deep-merge
 - `src/app/api/auth/[...all]/route.ts` — Better Auth route handler
 - `src/app/api/insforge-token/route.ts` — bridge route that signs HS256 with `INSFORGE_JWT_SECRET`
 - `src/app/sign-up/page.tsx`, `src/app/sign-in/page.tsx`, `src/app/notes/page.tsx` — working demo UI
-- `sql/01-init.sql` — `pgcrypto`, `requesting_user_id()`, RLS-protected `notes` table
-- `sql/02-revoke.sql` — locks BA's tables down from PostgREST anon/authenticated
-- `scripts/setup-db.mjs` — runs the SQL files using `pg` (no `psql` dependency)
+- `sql/01-schema.sql` — creates the `better_auth` schema (runs before `auth:migrate`)
+- `sql/02-app.sql` — `pgcrypto`, `requesting_user_id()`, RLS-protected `notes` table with FK to `better_auth.user`
+- `scripts/setup-db.mjs` — runs the SQL files using `pg` (no `psql` dependency); accepts a filename-prefix arg so the setup flow can split pre/post-migrate phases
 
 ## Why an overlay, not a template
 
