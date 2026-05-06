@@ -3,16 +3,16 @@
   "name": "better-auth",
   "description": "Better Auth + InsForge bridge: same-origin sessions, HS256 bridge JWT, Row Level Security via requesting_user_id().",
   "files": [
-    "lib/auth.ts",
-    "lib/auth-client.ts",
-    "lib/insforge.ts",
-    "lib/insforge.server.ts",
-    "lib/insforge-server-mailer.ts",
-    "app/api/auth/[...all]/route.ts",
-    "app/api/insforge-token/route.ts",
-    "app/notes/page.tsx",
-    "app/sign-in/page.tsx",
-    "app/sign-up/page.tsx",
+    "src/lib/auth.ts",
+    "src/lib/auth-client.ts",
+    "src/lib/insforge.ts",
+    "src/lib/insforge.server.ts",
+    "src/lib/insforge-server-mailer.ts",
+    "src/app/api/auth/[...all]/route.ts",
+    "src/app/api/insforge-token/route.ts",
+    "src/app/notes/page.tsx",
+    "src/app/sign-in/page.tsx",
+    "src/app/sign-up/page.tsx",
     "sql/01-init.sql",
     "sql/02-revoke.sql",
     "scripts/setup-db.mjs"
@@ -30,7 +30,7 @@
       "@types/pg": "^8.11.10"
     },
     "scripts": {
-      "auth:migrate": "better-auth migrate --config ./lib/auth.ts -y",
+      "auth:migrate": "better-auth migrate --config ./src/lib/auth.ts -y",
       "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
       "setup": "npm run auth:migrate && npm run db:setup"
     }
