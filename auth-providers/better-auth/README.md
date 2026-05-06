@@ -16,14 +16,14 @@ The CLI reads `manifest.json`, copies the files listed under `files`, deep-merge
 
 ## What gets dropped
 
-- `lib/auth.ts` — Better Auth server (Postgres pool, email + password)
-- `lib/auth-client.ts` — Better Auth React client
-- `lib/insforge.ts` — `useInsforgeClient` hook (Pattern A)
-- `lib/insforge.server.ts` — `createInsForgeClient` for RSC / server actions (Pattern B)
-- `lib/insforge-server-mailer.ts` — server-side mailer using InsForge's email service
-- `app/api/auth/[...all]/route.ts` — Better Auth route handler
-- `app/api/insforge-token/route.ts` — bridge route that signs HS256 with `INSFORGE_JWT_SECRET`
-- `app/sign-up/page.tsx`, `app/sign-in/page.tsx`, `app/notes/page.tsx` — working demo UI
+- `src/lib/auth.ts` — Better Auth server (Postgres pool, email + password)
+- `src/lib/auth-client.ts` — Better Auth React client
+- `src/lib/insforge.ts` — `useInsforgeClient` hook (Pattern A)
+- `src/lib/insforge.server.ts` — `createInsForgeClient` for RSC / server actions (Pattern B)
+- `src/lib/insforge-server-mailer.ts` — server-side mailer using InsForge's email service
+- `src/app/api/auth/[...all]/route.ts` — Better Auth route handler
+- `src/app/api/insforge-token/route.ts` — bridge route that signs HS256 with `INSFORGE_JWT_SECRET`
+- `src/app/sign-up/page.tsx`, `src/app/sign-in/page.tsx`, `src/app/notes/page.tsx` — working demo UI
 - `sql/01-init.sql` — `pgcrypto`, `requesting_user_id()`, RLS-protected `notes` table
 - `sql/02-revoke.sql` — locks BA's tables down from PostgREST anon/authenticated
 - `scripts/setup-db.mjs` — runs the SQL files using `pg` (no `psql` dependency)
