@@ -17,11 +17,16 @@ function requireEnv(name: string): string {
 // dashboard reaches `better_auth.*` through its admin route (postgres
 // superuser pool), so Studio inspection still works.
 //
-// `pg.Pool` doesn't take a `schema` option; the standard way to scope BA's
-// queries to a specific schema is via Postgres `search_path`. We set it on
-// every new pooled connection so BA's `CREATE TABLE`, `INSERT`, `SELECT`
-// (and the `better-auth migrate` CLI when it imports this file) all resolve
-// to `better_auth.*`. `public` stays in the path for `gen_random_uuid()` etc.
+// `pg.Pool` doesn't take a `schema` option, so we scope BA's queries via
+// Postgres `search_path`. Pass it as a startup option (`-c search_path=…`)
+// rather than firing `SET search_path` from a `pool.on('connect')` listener:
+// the listener is async and BA/Kysely can dispatch queries against a fresh
+// connection BEFORE the SET completes, hitting `relation "user" does not
+// exist` because the default search_path resolves to `public`. The startup
+// option is applied during connection negotiation, so every query sees
+// `better_auth, public` from the very first statement. `public` stays in
+// the path for `gen_random_uuid()` etc.
+//
 // pg-connection-string v2 treats `sslmode=require` as `verify-full`, which
 // rejects InsForge cloud's self-signed Postgres cert with
 // `DEPTH_ZERO_SELF_SIGNED_CERT`. When the URL has any sslmode= we keep TLS on
@@ -31,11 +36,7 @@ const databaseUrl = requireEnv('DATABASE_URL');
 const pool = new Pool({
   connectionString: databaseUrl,
   ssl: databaseUrl.includes('sslmode=') ? { rejectUnauthorized: false } : undefined,
-});
-pool.on('connect', (client) => {
-  // Best-effort: we don't fail the connection on this — if the schema
-  // doesn't exist yet, the next migrate run creates it via 01-schema.sql.
-  client.query('SET search_path TO better_auth, public').catch(() => { /* noop */ });
+  options: '-c search_path=better_auth,public',
 });
 
 export const auth = betterAuth({
