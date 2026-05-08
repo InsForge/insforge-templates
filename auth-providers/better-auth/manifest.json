@@ -10,7 +10,6 @@
     "src/lib/insforge-server-mailer.ts",
     "src/app/api/auth/[...all]/route.ts",
     "src/app/api/insforge-token/route.ts",
-    "src/app/notes/page.tsx",
     "src/app/sign-in/page.tsx",
     "src/app/sign-up/page.tsx",
     "sql/01-schema.sql",
@@ -37,5 +36,5 @@
     }
   },
   "envExampleAppend": "# ─── Better Auth + InsForge bridge (added by --auth better-auth) ────────\n# Postgres for BA's own user/session/account/verification tables. The CLI\n# auto-fills this from your project — cloud uses the project's managed\n# Postgres, self-hosted defaults to the localhost stack below.\nDATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/insforge\n\nBETTER_AUTH_SECRET=replace-with-32-random-bytes\nBETTER_AUTH_URL=http://localhost:3000\nNEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000\n\n# Same secret InsForge uses internally; the bridge route signs HS256 with this.\nINSFORGE_JWT_SECRET=replace-with-output-of-cli-secrets-get-JWT_SECRET\nNEXT_PUBLIC_INSFORGE_BASE_URL=http://localhost:7130\nNEXT_PUBLIC_INSFORGE_ANON_KEY=replace-with-anon-key-from-insforge-dashboard",
-  "nextSteps": "Better Auth scaffold installed. Next:\n\n  1. Set DATABASE_URL in .env.local (where Better Auth's tables will live).\n  2. npm install\n  3. npm run setup     # creates better_auth schema, runs BA migrate, sets up notes + RLS\n  4. npm run dev       # then open http://localhost:3000/sign-up"
+  "nextSteps": "Run `npm run dev` and open http://localhost:3000/sign-up."
 }

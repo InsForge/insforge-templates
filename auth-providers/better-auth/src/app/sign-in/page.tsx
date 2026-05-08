@@ -18,7 +18,7 @@ export default function SignInPage() {
         setErr(error.message ?? 'sign-in failed');
         return;
       }
-      if (data?.user) window.location.href = '/notes';
+      if (data?.user) window.location.href = '/';
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'sign-in failed');
     } finally {

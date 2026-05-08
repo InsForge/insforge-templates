@@ -19,7 +19,7 @@ export default function SignUpPage() {
         setErr(error.message ?? 'sign-up failed');
         return;
       }
-      if (data?.user) window.location.href = '/notes';
+      if (data?.user) window.location.href = '/';
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'sign-up failed');
     } finally {

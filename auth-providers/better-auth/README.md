@@ -23,9 +23,9 @@ The CLI reads `manifest.json`, copies the files listed under `files`, deep-merge
 - `src/lib/insforge-server-mailer.ts` — server-side mailer using InsForge's email service
 - `src/app/api/auth/[...all]/route.ts` — Better Auth route handler
 - `src/app/api/insforge-token/route.ts` — bridge route that signs HS256 with `INSFORGE_JWT_SECRET`
-- `src/app/sign-up/page.tsx`, `src/app/sign-in/page.tsx`, `src/app/notes/page.tsx` — working demo UI
+- `src/app/sign-up/page.tsx`, `src/app/sign-in/page.tsx` — working email + password UI
 - `sql/01-schema.sql` — creates the `better_auth` schema (runs before `auth:migrate`)
-- `sql/02-app.sql` — `pgcrypto`, `requesting_user_id()`, RLS-protected `notes` table with FK to `better_auth.user`
+- `sql/02-app.sql` — `pgcrypto`, `requesting_user_id()` helper for RLS, realtime `sender_id` widening
 - `scripts/setup-db.mjs` — runs the SQL files using `pg` (no `psql` dependency); accepts a filename-prefix arg so the setup flow can split pre/post-migrate phases
 
 ## Why an overlay, not a template
