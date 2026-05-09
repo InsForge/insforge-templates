@@ -31,7 +31,7 @@
     "scripts": {
       "auth:migrate": "better-auth migrate --config ./src/lib/auth.ts -y",
       "db:bootstrap": "node --env-file=.env.local scripts/setup-db.mjs 01-",
-      "setup": "npm run db:bootstrap && npm run auth:migrate && insforge db migrations up --all"
+      "setup": "npm run db:bootstrap && npm run auth:migrate && npx -y @insforge/cli db migrations up --all"
     }
   },
   "envExampleAppend": "# ─── Better Auth + InsForge bridge (added by --auth better-auth) ────────\n# Postgres for BA's own user/session/account/verification tables. The CLI\n# auto-fills this from your project — cloud uses the project's managed\n# Postgres, self-hosted defaults to the localhost stack below.\nDATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/insforge\n\nBETTER_AUTH_SECRET=replace-with-32-random-bytes\nBETTER_AUTH_URL=http://localhost:3000\nNEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000\n\n# Same secret InsForge uses internally; the bridge route signs HS256 with this.\nINSFORGE_JWT_SECRET=replace-with-output-of-cli-secrets-get-JWT_SECRET\nNEXT_PUBLIC_INSFORGE_BASE_URL=http://localhost:7130\nNEXT_PUBLIC_INSFORGE_ANON_KEY=replace-with-anon-key-from-insforge-dashboard",
