@@ -24,9 +24,7 @@ The CLI reads `manifest.json`, copies the files listed under `files`, deep-merge
 - `src/app/api/auth/[...all]/route.ts` — Better Auth route handler
 - `src/app/api/insforge-token/route.ts` — bridge route that signs HS256 with `INSFORGE_JWT_SECRET`
 - `src/app/sign-up/page.tsx`, `src/app/sign-in/page.tsx` — working email + password UI
-- `sql/01-schema.sql` — bootstrap that runs before `auth:migrate`. Creates the `better_auth` schema via direct Postgres connection (the migrations API can't be used here — BA's CLI needs the schema to exist before either path is reachable).
-- `migrations/0001_better-auth-app.sql` — first tracked migration. `pgcrypto` + `public.requesting_user_id()` helper. Applied via `insforge db migrations up` so it lives alongside any migrations you add later with `insforge db migrations new <name>` (which generates timestamp versions). Sequential `0001` reads as "this is first" and sorts before any timestamped migration via the CLI's BigInt version comparison.
-- `scripts/setup-db.mjs` — runs the SQL files using `pg` (no `psql` dependency); accepts a filename-prefix arg so the setup flow can split pre/post-migrate phases
+- `migrations/0001_better-auth-bootstrap.sql` — single bootstrap migration: `CREATE SCHEMA better_auth`, `pgcrypto` extension, and `public.requesting_user_id()` helper. Applied via `insforge db migrations up --to 0001` BEFORE `auth:migrate`. Anything you add later with `insforge db migrations new <name>` lives in the same `migrations/` dir and gets applied via `up --all` after BA's CLI has created its tables.
 
 ## Why an overlay, not a template
 
@@ -40,9 +38,10 @@ The CLI's overlay logic isn't required. You can clone this directory and copy th
 
 ```bash
 git clone https://github.com/InsForge/insforge-templates.git
-cp -r insforge-templates/auth-providers/better-auth/{lib,app,sql,scripts} your-project/
+cp -r insforge-templates/auth-providers/better-auth/{src,migrations} your-project/
 # Then edit your package.json to add the deps from manifest.json's packageJsonPatch
-# and write .env.local with the values from manifest.json's envExampleAppend.
+# (and the auth:migrate + setup scripts), and write .env.local with the values
+# from manifest.json's envExampleAppend.
 ```
 
 See the [InsForge Better Auth integration guide](https://staging.insforge.dev/integrations/better-auth) for the full walk-through and the [skill reference](https://github.com/InsForge/insforge-skills/blob/main/skills/insforge-integrations/references/better-auth.md) for plugins, custom claims, and common-mistake guidance.
