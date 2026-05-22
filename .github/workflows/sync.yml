@@ -1,0 +1,30 @@
+name: Sync Registry to Cloud-Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry.json'
+      - 'assets/covers/**'
+
+jobs:
+  sync:
+    name: POST /admin/v1/templates/sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync
+        env:
+          TOKEN: ${{ secrets.TEMPLATE_SYNC_TOKEN }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::TEMPLATE_SYNC_TOKEN secret not set; configure it in repo settings before merging."
+            exit 1
+          fi
+          curl -fSs -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.insforge.dev/admin/v1/templates/sync" \
+            -d "{\"commit_sha\":\"$SHA\"}"
+          echo
+          echo "Sync completed for commit $SHA"

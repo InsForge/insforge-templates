@@ -1,0 +1,85 @@
+name: Validate Registry
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate-registry:
+    name: Validate registry.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install validator deps
+        working-directory: scripts
+        run: npm ci
+
+      - name: Run validator
+        run: node scripts/validate-registry.mjs
+
+      - name: Run validator unit tests
+        working-directory: scripts
+        run: npm test
+
+  # We deliberately do NOT run `npm install` on each template in CI:
+  # contributors install locally before opening a PR, package-lock.json
+  # makes the install reproducible, and the slow per-template install
+  # would dominate CI time as the registry grows. The static checks below
+  # (JSON parse, file existence, secret patterns, SQL parse, edge-function
+  # tsc) cover what install would catch except the rare "package was
+  # yanked from npm" case — we'll catch that via Dependabot/Snyk later.
+  edge-function-tsc:
+    name: tsc --noEmit on edge functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read registry slugs
+        id: slugs
+        run: |
+          SLUGS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('registry.json','utf8')).map(e=>e.slug).join(' '))")
+          echo "slugs=$SLUGS" >> "$GITHUB_OUTPUT"
+
+      - name: tsc --noEmit any edge functions
+        run: |
+          for slug in ${{ steps.slugs.outputs.slugs }}; do
+            if [ -d "$slug/functions" ]; then
+              for fn in "$slug"/functions/*/; do
+                if [ -f "${fn}index.ts" ]; then
+                  echo "==> tsc $fn"
+                  npx -y typescript@5.6.0 --noEmit "${fn}index.ts"
+                fi
+              done
+            fi
+          done
+
+  cover-size:
+    name: Cover image size budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce <= 200 KB
+        run: |
+          for f in assets/covers/*.png assets/covers/*.svg; do
+            [ -f "$f" ] || continue
+            size=$(stat -c%s "$f")
+            if [ "$size" -gt 204800 ]; then
+              echo "::error file=$f::Cover $f is ${size} bytes; max is 204800"
+              exit 1
+            fi
+          done
