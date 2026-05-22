@@ -83,6 +83,14 @@ describe('validateTemplate — filesystem', () => {
     expect(r.ok).toBe(false);
     expect(r.errors.join(' ')).toMatch(/cover/i);
   });
+
+  it('rejects cover paths that escape the repo via .. or absolute path', async () => {
+    for (const bad of ['../../etc/passwd.png', '/etc/passwd.png', 'foo/../../etc']) {
+      const r = await validateTemplate(entry('good-slug', { cover: bad }), repoRoot);
+      expect(r.ok).toBe(false);
+      expect(r.errors.join(' ')).toMatch(/must be a relative path inside the repo/i);
+    }
+  });
 });
 
 describe('validateTemplate — SQL', () => {

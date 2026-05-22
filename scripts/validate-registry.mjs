@@ -2,6 +2,7 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const SCHEMA = {
   type: 'array',
@@ -98,8 +99,20 @@ export async function validateTemplate(entry, repoRoot) {
       }
     }
   }
-  if (entry.cover && !existsSync(join(repoRoot, entry.cover))) {
-    errors.push(`${entry.slug}: cover file ${entry.cover} not found`);
+  if (entry.cover) {
+    // Reject absolute paths or any `..` segment so a hostile registry entry
+    // can't point cover at `/etc/passwd` or `../../some-secret/file.png`.
+    // Cover must be a relative path inside the repo.
+    if (
+      entry.cover.startsWith('/') ||
+      entry.cover.split(/[\\/]/).includes('..')
+    ) {
+      errors.push(
+        `${entry.slug}: cover path ${entry.cover} must be a relative path inside the repo (no leading / or .. segments)`,
+      );
+    } else if (!existsSync(join(repoRoot, entry.cover))) {
+      errors.push(`${entry.slug}: cover file ${entry.cover} not found`);
+    }
   }
   // SQL parse check
   const migrationsDir = join(subdir, 'migrations');
@@ -122,9 +135,11 @@ export async function validateTemplate(entry, repoRoot) {
 
 // CLI: node validate-registry.mjs [registry-path] [repo-root]
 if (import.meta.url === `file://${process.argv[1]}`) {
+  // fileURLToPath handles Windows drive letters + URL-decoding correctly;
+  // `new URL(...).pathname` mangles paths on Windows (leading slash, %xx escapes).
   const registryPath =
-    process.argv[2] ?? new URL('../registry.json', import.meta.url).pathname;
-  const repoRoot = process.argv[3] ?? new URL('../', import.meta.url).pathname;
+    process.argv[2] ?? fileURLToPath(new URL('../registry.json', import.meta.url));
+  const repoRoot = process.argv[3] ?? fileURLToPath(new URL('../', import.meta.url));
   const registry = JSON.parse(readFileSync(registryPath, 'utf8'));
 
   const schemaResult = validateSchema(registry);
