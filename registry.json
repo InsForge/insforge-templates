@@ -8,7 +8,7 @@
     "features": ["auth", "storage", "payments"],
     "tags": ["e-commerce", "stripe", "storefront"],
     "cover": "assets/covers/e-commerce.png",
-    "demo_url": "https://store-demo.us-east.insforge.app",
+    "demo_url": "https://demoecommerce.insforge.site/",
     "author": "InsForge",
     "added_at": "2026-05-20"
   }

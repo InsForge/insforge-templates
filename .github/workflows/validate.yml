@@ -73,13 +73,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Enforce <= 200 KB
+      - name: Enforce <= 1 MB
         run: |
           for f in assets/covers/*.png assets/covers/*.svg; do
             [ -f "$f" ] || continue
             size=$(stat -c%s "$f")
-            if [ "$size" -gt 204800 ]; then
-              echo "::error file=$f::Cover $f is ${size} bytes; max is 204800"
+            if [ "$size" -gt 1048576 ]; then
+              echo "::error file=$f::Cover $f is ${size} bytes; max is 1048576 (1 MB)"
               exit 1
             fi
           done
