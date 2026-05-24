@@ -24,5 +24,18 @@
     "demo_url": "https://marketing.insforge.site",
     "author": "InsForge",
     "added_at": "2026-05-23"
+  },
+  {
+    "slug": "crm",
+    "name": "CRM Starter",
+    "description": "B2B sales pipeline: leads, drag-and-drop kanban, lead-to-client conversion, activities, follow-ups, and projects. Next.js + InsForge auth + database + storage with RLS.",
+    "category": "crm",
+    "framework": "nextjs",
+    "features": ["auth", "database", "storage"],
+    "tags": ["crm", "sales", "pipeline", "leads"],
+    "cover": "assets/covers/crm.png",
+    "demo_url": "https://democrm.insforge.site",
+    "author": "InsForge",
+    "added_at": "2026-05-24"
   }
 ]
