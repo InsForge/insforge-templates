@@ -11,5 +11,18 @@
     "demo_url": "https://demoecommerce.insforge.site/",
     "author": "InsForge",
     "added_at": "2026-05-20"
+  },
+  {
+    "slug": "landing",
+    "name": "SaaS Landing",
+    "description": "Production-ready SaaS marketing site with waitlist, pricing, FAQ, and dark mode. Next.js + InsForge auth + waitlist DB.",
+    "category": "marketing",
+    "framework": "nextjs",
+    "features": ["auth", "database"],
+    "tags": ["landing", "saas", "marketing", "waitlist", "shadcn"],
+    "cover": "assets/covers/landing.png",
+    "demo_url": "https://marketing.insforge.site",
+    "author": "InsForge",
+    "added_at": "2026-05-23"
   }
 ]
