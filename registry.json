@@ -18,7 +18,7 @@
     "description": "Production-ready SaaS marketing site with waitlist, pricing, FAQ, and dark mode. Next.js + InsForge auth + waitlist DB.",
     "category": "marketing",
     "framework": "nextjs",
-    "features": ["auth", "marketing", "waitlist"],
+    "features": ["auth", "database"],
     "tags": ["landing", "saas", "marketing", "waitlist", "shadcn"],
     "cover": "assets/covers/landing.png",
     "demo_url": "https://marketing.insforge.site",
