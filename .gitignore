@@ -137,8 +137,10 @@ dist
 
 # InsForge & AI agent skills
 .insforge
+insforge.toml
 skills/
 skills-lock.json
+docs/superpowers/
 .agent
 .agents
 .augment

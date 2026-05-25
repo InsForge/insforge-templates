@@ -50,5 +50,18 @@
     "demo_url": "https://booking.insforge.site",
     "author": "InsForge",
     "added_at": "2026-05-23"
+  },
+  {
+    "slug": "ai-pdf-chatbot",
+    "name": "AI PDF Chatbot",
+    "description": "Upload PDFs and chat with them. RAG with citations powered by InsForge pgvector + InsForge AI. Next.js + auth + storage + database with RLS.",
+    "category": "ai",
+    "framework": "nextjs",
+    "features": ["auth", "database", "storage", "ai"],
+    "tags": ["rag", "pdf", "chatbot", "embeddings", "pgvector", "langchain-alternative"],
+    "cover": "assets/covers/ai-pdf-chatbot.png",
+    "demo_url": "https://aipdfchat.insforge.site",
+    "author": "InsForge",
+    "added_at": "2026-05-25"
   }
 ]
