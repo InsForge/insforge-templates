@@ -63,5 +63,18 @@
     "demo_url": "https://aipdfchat.insforge.site",
     "author": "InsForge",
     "added_at": "2026-05-25"
+  },
+  {
+    "slug": "admin-dashboard",
+    "name": "Admin Dashboard Starter",
+    "description": "Multi-user SaaS admin with workspace invites, TanStack Table CRUD, real-time chat, charts, and full settings. Vite + React + InsForge auth, database, RLS, storage, and realtime.",
+    "category": "admin",
+    "framework": "react",
+    "features": ["auth", "database", "storage", "realtime"],
+    "tags": ["admin", "dashboard", "shadcn", "tanstack-table", "workspace", "saas"],
+    "cover": "assets/covers/admin-dashboard.png",
+    "demo_url": "https://admindashboard.insforge.site",
+    "author": "InsForge",
+    "added_at": "2026-05-25"
   }
 ]

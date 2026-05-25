@@ -1,0 +1,39 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.env
+.env.local
+.env*.local
+
+.DS_Store
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build
+*.tsbuildinfo
+.tmp
