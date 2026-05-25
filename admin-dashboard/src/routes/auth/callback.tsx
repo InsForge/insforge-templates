@@ -59,11 +59,16 @@ function OAuthCallbackPage() {
       try {
         const wsId = await ensureWorkspace(user.id, user.email)
         setActiveWorkspaceId(wsId)
+        await refresh()
+        navigate({ to: '/dashboard' })
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Could not initialize workspace')
+        const msg = err instanceof Error ? err.message : 'Could not initialize workspace'
+        console.error('ensureWorkspace failed:', err)
+        toast.error(`Workspace setup failed: ${msg}`, { duration: 10000 })
+        // Surface, but still sign the user in so they can retry from the UI.
+        await refresh()
+        navigate({ to: '/dashboard' })
       }
-      await refresh()
-      navigate({ to: '/dashboard' })
     })()
   }, [navigate, refresh, setActiveWorkspaceId])
 
