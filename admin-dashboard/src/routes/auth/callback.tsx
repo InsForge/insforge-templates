@@ -10,18 +10,12 @@ const VERIFIER_KEY = 'insforge.pkce_verifier'
 
 export const Route = createFileRoute('/auth/callback')({
   component: OAuthCallbackPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    insforge_code: typeof search.insforge_code === 'string' ? search.insforge_code : undefined,
-    error: typeof search.error === 'string' ? search.error : undefined,
-    error_description: typeof search.error_description === 'string' ? search.error_description : undefined,
-  }),
 })
 
 function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { refresh } = useAuth()
   const setActiveWorkspaceId = useWorkspaceStore((s) => s.setActiveWorkspaceId)
-  const search = Route.useSearch()
   const ran = useRef(false)
   const [status, setStatus] = useState<string>('Completing sign-in…')
 
@@ -30,14 +24,20 @@ function OAuthCallbackPage() {
     ran.current = true
 
     void (async () => {
-      if (search.error) {
-        toast.error(search.error_description ?? search.error)
+      // Read directly from window.location so the SDK's exact param names work
+      // regardless of how TanStack Router parses search.
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('insforge_code') ?? params.get('code')
+      const err = params.get('error')
+      const errDesc = params.get('error_description')
+
+      if (err) {
+        toast.error(errDesc ?? err)
         sessionStorage.removeItem(VERIFIER_KEY)
         navigate({ to: '/sign-in' })
         return
       }
 
-      const code = search.insforge_code
       if (!code) {
         toast.error('Missing authorization code')
         navigate({ to: '/sign-in' })
@@ -65,7 +65,7 @@ function OAuthCallbackPage() {
       await refresh()
       navigate({ to: '/dashboard' })
     })()
-  }, [search, navigate, refresh, setActiveWorkspaceId])
+  }, [navigate, refresh, setActiveWorkspaceId])
 
   return (
     <div className="grid min-h-screen place-items-center p-6 text-center">
