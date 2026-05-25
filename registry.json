@@ -76,5 +76,18 @@
     "demo_url": "https://admindashboard.insforge.site",
     "author": "InsForge",
     "added_at": "2026-05-25"
+  },
+  {
+    "slug": "workspace",
+    "name": "Workspace",
+    "description": "Notion-style collaborative workspace with nested pages, rich-text editing, image embeds, and per-page public share links. Next.js + InsForge auth + database + storage with RLS.",
+    "category": "productivity",
+    "framework": "nextjs",
+    "features": ["auth", "database", "storage"],
+    "tags": ["notion", "workspace", "docs", "wiki", "blocknote"],
+    "cover": "assets/covers/workspace.png",
+    "demo_url": "https://workspace.insforge.site",
+    "author": "InsForge",
+    "added_at": "2026-05-25"
   }
 ]
