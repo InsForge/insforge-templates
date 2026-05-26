@@ -142,11 +142,49 @@ admin-dashboard/
 
 ---
 
+## Connecting third-party apps
+
+The `/apps` page lists every integration available to a workspace. Two kinds:
+
+- **InsForge-native** (Stripe, OpenRouter) — configured in the InsForge dashboard. The card opens the corresponding dashboard page in a new tab.
+- **Composio-backed** (GitHub, Notion, Slack, Discord, Figma, Linear, Vercel) — connected per workspace via Composio's hosted OAuth.
+
+### One-time Composio setup
+
+1. Sign up at [composio.dev](https://composio.dev) and create an API key in **Settings → API Keys**.
+2. For each of the 7 toolkits (`github`, `notion`, `slack`, `discord`, `figma`, `linear`, `vercel`), open the **Toolkits** page, click the toolkit, then **Create Auth Config** with OAuth 2.0. Copy the resulting `auth_config_id` (`ac_…`).
+3. Store every value in InsForge secrets:
+
+   ```bash
+   npx @insforge/cli secrets add COMPOSIO_API_KEY <your-api-key>
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_GITHUB  ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_NOTION  ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_SLACK   ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_DISCORD ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_FIGMA   ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_LINEAR  ac_xxx
+   npx @insforge/cli secrets add COMPOSIO_AUTH_CONFIG_VERCEL  ac_xxx
+   ```
+
+4. Deploy the three edge functions (already shipped under `functions/`):
+
+   ```bash
+   npx @insforge/cli functions deploy apps-connect    --file ./functions/apps-connect.ts
+   npx @insforge/cli functions deploy apps-poll       --file ./functions/apps-poll.ts
+   npx @insforge/cli functions deploy apps-disconnect --file ./functions/apps-disconnect.ts
+   ```
+
+Composio routes its OAuth callback to its own domain — you do **not** need to add any URLs to `insforge.toml`. You do need to allow popups in your browser; the connect flow opens one synchronously when the user clicks **Connect**.
+
+Connections are scoped per workspace: the same workspace user_id is passed to Composio so any member of that workspace can disconnect or replace the connection.
+
+---
+
 ## Customization
 
 - **Rebrand** — swap the app name, colors, and icon set. Tailwind CSS variables in `src/styles/globals.css` drive the entire palette; chart colors live there too.
 - **Add a page** — drop a new file under `src/routes/_authenticated/` and add a sidebar entry in `src/components/layout/sidebar-nav.ts`. TanStack Router picks it up on next build.
-- **Wire a real integration in Apps** — replace the toggle handler in `src/features/apps/use-toggle-app.ts` with an OAuth flow. The mock pattern keeps `app_connections.status` for free.
+- **Add or change Apps integrations** — see [Connecting third-party apps](#connecting-third-party-apps) below for the Composio + InsForge-native split. Add a new card by inserting a row into `apps_catalog` (set `integration_kind` and either `composio_toolkit_slug` for Composio toolkits or extend the `OSS_DEEP_LINKS` map in `src/features/apps/use-apps.ts` for native deep links).
 - **Email invitations** — V1 produces a copyable link. To email instead, wire `insforge.emails.send()` in `src/features/users/use-invitations.ts`.
 
 ---
