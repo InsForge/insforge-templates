@@ -6,8 +6,6 @@ import { useAuth } from '@/lib/auth-context'
 import { ensureWorkspace } from '@/features/auth/ensure-workspace'
 import { useWorkspaceStore } from '@/features/workspaces/workspace-store'
 
-const VERIFIER_KEY = 'insforge.pkce_verifier'
-
 export const Route = createFileRoute('/auth/callback')({
   component: OAuthCallbackPage,
 })
@@ -24,30 +22,17 @@ function OAuthCallbackPage() {
     ran.current = true
 
     void (async () => {
-      // Read directly from window.location so the SDK's exact param names work
-      // regardless of how TanStack Router parses search.
       const params = new URLSearchParams(window.location.search)
-      const code = params.get('insforge_code') ?? params.get('code')
       const err = params.get('error')
-      const errDesc = params.get('error_description')
-
       if (err) {
-        toast.error(errDesc ?? err)
-        sessionStorage.removeItem(VERIFIER_KEY)
+        toast.error(params.get('error_description') ?? err)
         navigate({ to: '/sign-in' })
         return
       }
 
-      if (!code) {
-        toast.error('Missing authorization code')
-        navigate({ to: '/sign-in' })
-        return
-      }
-
-      const codeVerifier = sessionStorage.getItem(VERIFIER_KEY) ?? undefined
-      sessionStorage.removeItem(VERIFIER_KEY)
-
-      const { data, error } = await insforge.auth.exchangeOAuthCode(code, codeVerifier)
+      // The SDK auto-detects `insforge_code` on init and exchanges it; getCurrentUser
+      // waits for that pending exchange to settle before returning.
+      const { data, error } = await insforge.auth.getCurrentUser()
       if (error || !data?.user) {
         toast.error(error?.message ?? 'Sign-in failed')
         navigate({ to: '/sign-in' })
@@ -65,7 +50,6 @@ function OAuthCallbackPage() {
         const msg = err instanceof Error ? err.message : 'Could not initialize workspace'
         console.error('ensureWorkspace failed:', err)
         toast.error(`Workspace setup failed: ${msg}`, { duration: 10000 })
-        // Surface, but still sign the user in so they can retry from the UI.
         await refresh()
         navigate({ to: '/dashboard' })
       }
