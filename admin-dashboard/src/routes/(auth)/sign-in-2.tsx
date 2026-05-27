@@ -48,9 +48,6 @@ function SignIn2Page() {
       toast.error(error?.message ?? `${provider} sign-in is not configured`)
       return
     }
-    if (data.codeVerifier) {
-      sessionStorage.setItem('insforge.pkce_verifier', data.codeVerifier)
-    }
     window.location.href = data.url
   }
 

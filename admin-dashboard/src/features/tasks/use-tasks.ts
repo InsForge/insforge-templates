@@ -16,7 +16,7 @@ function toDbPayload(values: TaskFormValues) {
     status: values.status,
     priority: values.priority,
     label: values.label,
-    due_date: values.due_date ? new Date(values.due_date).toISOString() : null,
+    due_date: values.due_date ? values.due_date : null,
   }
 }
 

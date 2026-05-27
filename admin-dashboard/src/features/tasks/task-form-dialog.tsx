@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { format, parseISO } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -58,7 +57,7 @@ function toFormValues(task: Task | null | undefined, fallback?: Partial<TaskForm
       status: task.status,
       priority: task.priority,
       label: task.label,
-      due_date: task.due_date ? format(parseISO(task.due_date), 'yyyy-MM-dd') : '',
+      due_date: task.due_date ?? '',
     }
   }
   return { ...defaultTaskFormValues, ...fallback }

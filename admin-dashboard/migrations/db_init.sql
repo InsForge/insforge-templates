@@ -63,7 +63,7 @@ create table if not exists public.tasks (
   status text not null default 'backlog',
   priority text not null default 'medium',
   label text not null default 'feature',
-  due_date timestamptz,
+  due_date date,
   assignee_id uuid,
   created_by uuid not null,
   created_at timestamptz not null default now(),
@@ -278,21 +278,27 @@ create policy "profiles_update_self"
 -- POLICIES — workspaces
 -- ============================================================================
 
+-- Owners are included explicitly so that INSERT ... RETURNING (used by
+-- PostgREST when the client chains .select()) can see the freshly-created row
+-- before any workspace_members entry exists.
 create policy "workspaces_select_member"
   on public.workspaces for select
   to authenticated
-  using (public.is_workspace_member(id));
+  using (owner_id = auth.uid() or public.is_workspace_member(id));
 
 create policy "workspaces_insert_self_as_owner"
   on public.workspaces for insert
   to authenticated
   with check (owner_id = auth.uid());
 
+-- WITH CHECK pins owner_id to the caller so the owner cannot transfer ownership
+-- by updating workspaces alone — otherwise the SELECT policy's owner_id branch
+-- would grant the new owner_id read access without a workspace_members row.
 create policy "workspaces_update_owner"
   on public.workspaces for update
   to authenticated
   using (public.is_workspace_owner(id))
-  with check (public.is_workspace_owner(id));
+  with check (public.is_workspace_owner(id) and owner_id = auth.uid());
 
 create policy "workspaces_delete_owner"
   on public.workspaces for delete

@@ -101,9 +101,16 @@ export const labelOptions = (Object.keys(LABEL_META) as TaskLabel[]).map((value)
   icon: LABEL_META[value].icon,
 }))
 
+// due_date is a plain calendar date (no time / no timezone). Parse it as a
+// local date so MMM d formatting doesn't shift by a day in negative UTC offsets.
+function parseLocalDate(value: string) {
+  const [y, m, d] = value.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 function formatDueDate(value: string | null) {
   if (!value) return null
-  const d = new Date(value)
+  const d = parseLocalDate(value)
   if (Number.isNaN(d.getTime())) return null
   if (isToday(d)) return 'Today'
   if (isTomorrow(d)) return 'Tomorrow'
@@ -242,15 +249,15 @@ export function buildColumns(actions: TaskRowActions): ColumnDef<Task>[] {
       cell: ({ row }) => {
         const text = formatDueDate(row.original.due_date)
         if (!text) return <span className="text-muted-foreground">—</span>
-        const d = new Date(row.original.due_date!)
+        const d = parseLocalDate(row.original.due_date!)
         const overdue = d.getTime() < Date.now() && row.original.status !== 'done'
         return (
           <span className={cn('text-sm', overdue && 'text-destructive')}>{text}</span>
         )
       },
       sortingFn: (a, b) => {
-        const av = a.original.due_date ? new Date(a.original.due_date).getTime() : Number.POSITIVE_INFINITY
-        const bv = b.original.due_date ? new Date(b.original.due_date).getTime() : Number.POSITIVE_INFINITY
+        const av = a.original.due_date ? parseLocalDate(a.original.due_date).getTime() : Number.POSITIVE_INFINITY
+        const bv = b.original.due_date ? parseLocalDate(b.original.due_date).getTime() : Number.POSITIVE_INFINITY
         return av - bv
       },
     },
