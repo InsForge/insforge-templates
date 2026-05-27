@@ -225,9 +225,13 @@ export function ChatShell({
         </div>
       ) : null}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* min-h-0 is required on this column wrapper and on <main> below.
+          Without it, flex items default to min-height: auto, which lets
+          the citation rail (or any tall child) push the column past the
+          h-dvh box and bury the chat input below the viewport. */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* Mobile header */}
-        <header className="flex items-center gap-2 border-b border-border bg-card/30 px-3 py-2 md:hidden">
+        <header className="flex shrink-0 items-center gap-2 border-b border-border bg-card/30 px-3 py-2 md:hidden">
           <button
             type="button"
             aria-label="Open menu"
@@ -239,8 +243,8 @@ export function ChatShell({
           <span className="truncate text-sm font-medium">AI PDF Chatbot</span>
         </header>
 
-        <main className="flex min-w-0 flex-1">
-          <section className="flex min-w-0 flex-1 flex-col">{children}</section>
+        <main className="flex min-h-0 min-w-0 flex-1">
+          <section className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</section>
           {rail}
         </main>
       </div>
