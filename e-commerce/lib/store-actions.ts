@@ -71,11 +71,9 @@ export async function placeOrderAction(payload: {
     note: payload.note,
   });
 
-  const { headers } = await import('next/headers');
-  const headersList = await headers();
-  const host = headersList.get('host') ?? 'localhost:3000';
-  const protocol = host.startsWith('localhost') ? 'http' : 'https';
-  const origin = `${protocol}://${host}`;
+  const origin = process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000'
+    : process.env.NEXT_PUBLIC_APP_URL!;
 
   const checkoutUrl = await createCheckoutSessionForOrder({
     accessToken,

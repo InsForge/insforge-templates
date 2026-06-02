@@ -633,17 +633,19 @@ export async function createCheckoutSessionForOrder(args: {
   const productIds = Array.from(new Set(items.map((i) => i.product_id).filter(Boolean))) as string[];
   const variantIds = Array.from(new Set(items.map((i) => i.variant_id).filter(Boolean))) as string[];
 
-  const { data: products } = await insforge.database
+  const { data: products, error: productsError } = await insforge.database
     .from('products')
     .select('id, stripe_price_id')
     .in('id', productIds);
+  assertNoDatabaseError(productsError, 'Unable to load product prices.');
 
-  const { data: variants } = variantIds.length
+  const { data: variants, error: variantsError } = variantIds.length
     ? await insforge.database
         .from('product_variants')
         .select('id, stripe_price_id')
         .in('id', variantIds)
-    : { data: [] };
+    : { data: [], error: null };
+  assertNoDatabaseError(variantsError, 'Unable to load variant prices.');
 
   const productPriceMap = new Map<string, string | null>(
     (products ?? []).map((p) => [p.id, p.stripe_price_id ?? null]),
@@ -713,7 +715,7 @@ export async function finalizeOrderForUser(args: {
   });
 
   assertNoDatabaseError(error, 'Unable to finalize order.');
-  return { paid: true as const, order };
+  return { paid: true as const, order: order as Order };
 }
 
 export async function getOrders(args: {
