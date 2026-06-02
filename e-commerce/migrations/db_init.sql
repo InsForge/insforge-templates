@@ -218,6 +218,55 @@ create table if not exists public.order_items (
   constraint order_items_line_total_non_negative check (line_total_cents >= 0)
 );
 
+create table if not exists public.order_status_events (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  event_type text not null,
+  message text,
+  created_at timestamptz not null default now(),
+  constraint order_status_events_type_check check (
+    event_type in (
+      'order_placed',
+      'payment_succeeded',
+      'payment_failed',
+      'fulfillment_processing',
+      'fulfillment_shipped',
+      'fulfillment_delivered',
+      'order_cancelled',
+      'order_refunded'
+    )
+  )
+);
+
+create index if not exists order_status_events_order_idx on public.order_status_events (order_id, created_at asc);
+
+alter table public.order_status_events enable row level security;
+
+create policy if not exists order_status_events_owner_select on public.order_status_events
+  for select using (auth.uid() = user_id);
+
+create policy if not exists order_status_events_admin_all on public.order_status_events
+  for all using (public.is_project_admin());
+
+create table if not exists public.wishlists (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  product_id uuid not null references public.products(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  constraint wishlists_user_product_unique unique (user_id, product_id)
+);
+
+create index if not exists wishlists_user_idx on public.wishlists (user_id, created_at desc);
+
+alter table public.wishlists enable row level security;
+
+create policy if not exists wishlists_owner_all on public.wishlists
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy if not exists wishlists_admin_all on public.wishlists
+  for all using (public.is_project_admin());
+
 alter table public.cart_items
   add column if not exists variant_id uuid references public.product_variants(id) on delete set null;
 
@@ -225,6 +274,18 @@ alter table public.order_items
   add column if not exists variant_id uuid references public.product_variants(id) on delete set null,
   add column if not exists variant_title text,
   add column if not exists variant_summary text;
+
+alter table public.products
+  add column if not exists stripe_price_id text;
+
+alter table public.product_variants
+  add column if not exists stripe_price_id text;
+
+alter table public.orders
+  add column if not exists stripe_checkout_session_id text,
+  add column if not exists stripe_payment_intent_id text,
+  add column if not exists discount_code text,
+  add column if not exists discount_cents integer not null default 0;
 
 do $$
 begin
@@ -270,7 +331,10 @@ create index if not exists cart_items_user_idx on public.cart_items (user_id, cr
 create index if not exists saved_addresses_user_idx on public.saved_addresses (user_id, created_at desc);
 create index if not exists orders_user_created_idx on public.orders (user_id, created_at desc);
 create index if not exists orders_status_created_idx on public.orders (status, created_at desc);
+create index if not exists orders_stripe_session_idx on public.orders (stripe_checkout_session_id) where stripe_checkout_session_id is not null;
 create index if not exists order_items_order_idx on public.order_items (order_id);
+create index if not exists products_stripe_price_idx on public.products (stripe_price_id) where stripe_price_id is not null;
+create index if not exists product_variants_stripe_price_idx on public.product_variants (stripe_price_id) where stripe_price_id is not null;
 
 alter table public.cart_items
   drop constraint if exists cart_items_unique_product_per_cart;
@@ -330,31 +394,25 @@ begin
     raise exception 'You must be signed in to place an order.';
   end if;
 
-  select *
-  into v_address
+  select * into v_address
   from public.saved_addresses
-  where id = p_address_id
-    and user_id = v_user_id;
+  where id = p_address_id and user_id = v_user_id;
 
   if not found then
     raise exception 'Shipping address not found.';
   end if;
 
-  select id
-  into v_cart_id
+  select id into v_cart_id
   from public.shopping_carts
-  where user_id = v_user_id
-    and status = 'active'
-  order by updated_at desc
-  limit 1;
+  where user_id = v_user_id and status = 'active'
+  order by updated_at desc limit 1;
 
   if v_cart_id is null then
     raise exception 'No active cart found.';
   end if;
 
   if exists (
-    select 1
-    from public.cart_items ci
+    select 1 from public.cart_items ci
     join public.products p on p.id = ci.product_id
     left join public.product_variants pv on pv.id = ci.variant_id
     where ci.cart_id = v_cart_id
@@ -368,122 +426,134 @@ begin
 
   select coalesce(sum(quantity * unit_price_cents), 0)::integer
   into v_subtotal
-  from public.cart_items
-  where cart_id = v_cart_id;
+  from public.cart_items where cart_id = v_cart_id;
 
   if v_subtotal <= 0 then
     raise exception 'Your cart is empty.';
   end if;
 
-  select email
-  into v_email
-  from auth.users
-  where id = v_user_id;
+  select email into v_email from auth.users where id = v_user_id;
 
   v_shipping := case when v_subtotal >= 20000 then 0 else 1200 end;
   v_tax := floor(v_subtotal * 0.08)::integer;
   v_total := v_subtotal + v_shipping + v_tax;
 
   insert into public.orders (
-    user_id,
-    status,
-    payment_status,
-    fulfillment_status,
-    email,
-    shipping_name,
-    shipping_phone,
-    shipping_company,
-    shipping_address1,
-    shipping_address2,
-    shipping_city,
-    shipping_region,
-    shipping_postal_code,
-    shipping_country_code,
-    notes,
-    subtotal_cents,
-    shipping_cents,
-    tax_cents,
-    total_cents
+    user_id, status, payment_status, fulfillment_status, email,
+    shipping_name, shipping_phone, shipping_company,
+    shipping_address1, shipping_address2, shipping_city,
+    shipping_region, shipping_postal_code, shipping_country_code,
+    notes, subtotal_cents, shipping_cents, tax_cents, total_cents
   )
   values (
-    v_user_id,
-    'confirmed',
-    'paid',
-    'processing',
-    coalesce(v_email, ''),
-    v_address.recipient_name,
-    v_address.phone,
-    v_address.company,
-    v_address.line1,
-    v_address.line2,
-    v_address.city,
-    v_address.region,
-    v_address.postal_code,
-    v_address.country_code,
-    p_note,
-    v_subtotal,
-    v_shipping,
-    v_tax,
-    v_total
+    v_user_id, 'pending', 'pending', 'unfulfilled', coalesce(v_email, ''),
+    v_address.recipient_name, v_address.phone, v_address.company,
+    v_address.line1, v_address.line2, v_address.city,
+    v_address.region, v_address.postal_code, v_address.country_code,
+    p_note, v_subtotal, v_shipping, v_tax, v_total
   )
   returning id into v_order_id;
 
   insert into public.order_items (
-    order_id,
-    user_id,
-    product_id,
-    variant_id,
-    product_name,
-    product_slug,
-    product_image_url,
-    sku,
-    variant_title,
-    variant_summary,
-    unit_price_cents,
-    quantity,
-    line_total_cents
+    order_id, user_id, product_id, variant_id,
+    product_name, product_slug, product_image_url, sku,
+    variant_title, variant_summary, unit_price_cents, quantity, line_total_cents
   )
   select
-    v_order_id,
-    v_user_id,
-    p.id,
-    ci.variant_id,
-    p.name,
-    p.slug,
-    coalesce(pv.image_url, p.image_url),
-    coalesce(pv.sku, p.sku),
-    pv.title,
-    pv.option_summary,
-    ci.unit_price_cents,
-    ci.quantity,
+    v_order_id, v_user_id, p.id, ci.variant_id,
+    p.name, p.slug, coalesce(pv.image_url, p.image_url), coalesce(pv.sku, p.sku),
+    pv.title, pv.option_summary, ci.unit_price_cents, ci.quantity,
     ci.quantity * ci.unit_price_cents
   from public.cart_items ci
   join public.products p on p.id = ci.product_id
   left join public.product_variants pv on pv.id = ci.variant_id
   where ci.cart_id = v_cart_id;
 
-  update public.products p
-  set inventory_count = greatest(0, p.inventory_count - ci.quantity),
-      updated_at = now()
-  from public.cart_items ci
-  where ci.cart_id = v_cart_id
-    and ci.variant_id is null
-    and p.id = ci.product_id;
-
-  update public.product_variants pv
-  set inventory_count = greatest(0, pv.inventory_count - ci.quantity),
-      updated_at = now()
-  from public.cart_items ci
-  where ci.cart_id = v_cart_id
-    and ci.variant_id is not null
-    and pv.id = ci.variant_id;
-
-  update public.shopping_carts
-  set status = 'converted',
-      updated_at = now()
-  where id = v_cart_id;
+  insert into public.order_status_events (order_id, user_id, event_type, message)
+  values (v_order_id, v_user_id, 'order_placed', 'Order placed, awaiting payment');
 
   return v_order_id;
+end;
+$$;
+
+create or replace function public.finalize_order(
+  p_order_id uuid,
+  p_stripe_session_id text,
+  p_payment_intent_id text default null,
+  p_discount_code text default null,
+  p_discount_cents integer default 0
+)
+returns public.orders
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_order public.orders%rowtype;
+  v_cart_id uuid;
+begin
+  if v_user_id is null then
+    raise exception 'You must be signed in to finalize an order.';
+  end if;
+
+  select * into v_order from public.orders
+  where id = p_order_id and user_id = v_user_id for update;
+
+  if not found then
+    raise exception 'Order not found.';
+  end if;
+
+  if v_order.payment_status = 'paid' then
+    return v_order;
+  end if;
+
+  update public.orders set
+    status = 'confirmed',
+    payment_status = 'paid',
+    fulfillment_status = 'processing',
+    stripe_checkout_session_id = p_stripe_session_id,
+    stripe_payment_intent_id = p_payment_intent_id,
+    discount_code = p_discount_code,
+    discount_cents = coalesce(p_discount_cents, 0),
+    updated_at = now()
+  where id = p_order_id
+  returning * into v_order;
+
+  update public.products p
+  set inventory_count = greatest(0, p.inventory_count - oi.quantity),
+      updated_at = now()
+  from public.order_items oi
+  where oi.order_id = p_order_id
+    and oi.variant_id is null
+    and p.id = oi.product_id;
+
+  update public.product_variants pv
+  set inventory_count = greatest(0, pv.inventory_count - oi.quantity),
+      updated_at = now()
+  from public.order_items oi
+  where oi.order_id = p_order_id
+    and oi.variant_id is not null
+    and pv.id = oi.variant_id;
+
+  select id into v_cart_id from public.shopping_carts
+  where user_id = v_user_id and status = 'active'
+  order by updated_at desc limit 1;
+
+  if v_cart_id is not null then
+    update public.shopping_carts set
+      status = 'converted',
+      updated_at = now()
+    where id = v_cart_id;
+  end if;
+
+  insert into public.order_status_events (order_id, user_id, event_type, message)
+  values (p_order_id, v_user_id, 'payment_succeeded', 'Payment confirmed via Stripe');
+
+  insert into public.order_status_events (order_id, user_id, event_type, message)
+  values (p_order_id, v_user_id, 'fulfillment_processing', 'Order is being prepared');
+
+  return v_order;
 end;
 $$;
 
