@@ -24,7 +24,7 @@ export function OrderTimeline({ events }: { events: OrderStatusEvent[] }) {
         const isCurrent = !isDone && index === firstUnreachedIndex;
 
         return (
-          <li key={step.type} className="flex items-start gap-3">
+          <li key={step.type} className="flex items-start gap-3" aria-current={isCurrent ? 'step' : undefined}>
             <span className="mt-0.5">
               {isDone ? (
                 <CheckCircle2 className="size-5 text-emerald-600" />

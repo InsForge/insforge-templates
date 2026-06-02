@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { finalizeOrderAction } from '@/lib/store-actions';
@@ -17,6 +17,8 @@ function CheckoutSuccessContent() {
 
   const [status, setStatus] = useState<'polling' | 'paid' | 'timeout' | 'error'>('polling');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!orderId || !sessionId) {
@@ -34,14 +36,14 @@ function CheckoutSuccessContent() {
         if (cancelled) return;
         if (result.paid) {
           setStatus('paid');
-          setTimeout(() => router.replace(`/account/orders/${orderId}`), 600);
+          redirectTimerRef.current = setTimeout(() => router.replace(`/account/orders/${orderId}`), 600);
           return;
         }
         if (Date.now() - start > POLL_TIMEOUT_MS) {
           setStatus('timeout');
           return;
         }
-        setTimeout(poll, POLL_INTERVAL_MS);
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS);
       } catch (err) {
         if (cancelled) return;
         setStatus('error');
@@ -52,6 +54,8 @@ function CheckoutSuccessContent() {
     poll();
     return () => {
       cancelled = true;
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
     };
   }, [orderId, sessionId, router]);
 

@@ -27,18 +27,14 @@ export default async function OrderDetailPage({
   const { id } = await params;
   const { viewer, accessToken } = await requireAuthenticatedSession();
 
-  const order = await getOrderById({
-    accessToken,
-    userId: viewer.id,
-    isAdmin: false,
-    id,
-  });
+  const [order, timeline] = await Promise.all([
+    getOrderById({ accessToken, userId: viewer.id, isAdmin: false, id }),
+    getOrderTimeline({ accessToken, orderId: id }),
+  ]);
 
   if (!order) {
     notFound();
   }
-
-  const timeline = await getOrderTimeline({ accessToken, orderId: order.id });
 
   return (
     <div className="min-h-screen">

@@ -140,7 +140,9 @@ export async function finalizeOrderAction(payload: { orderId: string; stripeSess
     orderId: payload.orderId,
     stripeSessionId: payload.stripeSessionId,
   });
-  revalidatePath('/account/orders');
-  revalidatePath(`/account/orders/${payload.orderId}`);
+  if (result.paid) {
+    revalidatePath('/account/orders');
+    revalidatePath(`/account/orders/${payload.orderId}`);
+  }
   return result;
 }
