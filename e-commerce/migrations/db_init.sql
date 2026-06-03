@@ -241,16 +241,6 @@ create table if not exists public.order_status_events (
 
 create index if not exists order_status_events_order_idx on public.order_status_events (order_id, created_at asc);
 
-alter table public.order_status_events enable row level security;
-
-drop policy if exists order_status_events_owner_select on public.order_status_events;
-create policy order_status_events_owner_select on public.order_status_events
-  for select using (auth.uid() = user_id);
-
-drop policy if exists order_status_events_admin_all on public.order_status_events;
-create policy order_status_events_admin_all on public.order_status_events
-  for all using (public.is_project_admin());
-
 create table if not exists public.wishlists (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -260,16 +250,6 @@ create table if not exists public.wishlists (
 );
 
 create index if not exists wishlists_user_idx on public.wishlists (user_id, created_at desc);
-
-alter table public.wishlists enable row level security;
-
-drop policy if exists wishlists_owner_all on public.wishlists;
-create policy wishlists_owner_all on public.wishlists
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
-drop policy if exists wishlists_admin_all on public.wishlists;
-create policy wishlists_admin_all on public.wishlists
-  for all using (public.is_project_admin());
 
 alter table public.cart_items
   add column if not exists variant_id uuid references public.product_variants(id) on delete set null;
@@ -643,6 +623,8 @@ alter table public.cart_items enable row level security;
 alter table public.saved_addresses enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.order_status_events enable row level security;
+alter table public.wishlists enable row level security;
 
 drop policy if exists "categories_public_read" on public.categories;
 create policy "categories_public_read"
@@ -833,6 +815,33 @@ with check (
 drop policy if exists "order_items_admin_update" on public.order_items;
 create policy "order_items_admin_update"
 on public.order_items for update
+to authenticated
+using ((select public.current_user_is_admin()))
+with check ((select public.current_user_is_admin()));
+
+drop policy if exists "order_status_events_owner_select" on public.order_status_events;
+create policy "order_status_events_owner_select"
+on public.order_status_events for select
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "order_status_events_admin_all" on public.order_status_events;
+create policy "order_status_events_admin_all"
+on public.order_status_events for all
+to authenticated
+using ((select public.current_user_is_admin()))
+with check ((select public.current_user_is_admin()));
+
+drop policy if exists "wishlists_owner_all" on public.wishlists;
+create policy "wishlists_owner_all"
+on public.wishlists for all
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "wishlists_admin_all" on public.wishlists;
+create policy "wishlists_admin_all"
+on public.wishlists for all
 to authenticated
 using ((select public.current_user_is_admin()))
 with check ((select public.current_user_is_admin()));
