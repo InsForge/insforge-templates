@@ -41,7 +41,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const docRes = await client.database
     .from('documents')
-    .select('id, storage_bucket, storage_key, file_name, status')
+    .select('id, workspace_id, storage_bucket, storage_key, file_name, status')
     .eq('id', id)
     .single();
 
@@ -50,6 +50,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   }
   const doc = docRes.data as {
     id: string;
+    workspace_id: string | null;
     storage_bucket: string;
     storage_key: string;
     file_name: string;
@@ -80,10 +81,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const rows = cards.map((c, i) => ({
     document_id: id,
+    workspace_id: doc.workspace_id,
     user_id: auth.viewer.id,
     question: c.question,
     answer: c.answer,
     sort_order: i,
+    // Fresh cards land in the SRS queue immediately; defaults on the
+    // ease/interval/reps columns take care of the rest.
+    due_at: new Date().toISOString(),
   }));
 
   const ins = await client.database

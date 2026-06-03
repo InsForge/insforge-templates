@@ -13,6 +13,9 @@ type Body = {
   chatId?: string;
   input: string;
   documentIds?: string[];
+  // If set when chatId is absent, the new chat is created under that
+  // workspace and RAG retrieval is scoped to that workspace's documents.
+  workspaceId?: string | null;
 };
 
 function extractDeltaText(content: unknown): string {
@@ -44,20 +47,32 @@ export async function POST(req: Request) {
   const client = createInsforgeServerClient({ accessToken: auth.accessToken });
 
   let chatId = body.chatId;
+  let workspaceId: string | null = body.workspaceId ?? null;
   if (!chatId) {
     const ins = await client.database
       .from('chat_sessions')
       .insert({
         user_id: ownerId,
+        workspace_id: workspaceId,
         title: body.input.trim().slice(0, 60) || 'New chat',
         document_ids: body.documentIds ?? [],
       })
-      .select('id')
+      .select('id, workspace_id')
       .single();
     if (ins.error || !ins.data) {
       return NextResponse.json({ error: ins.error?.message ?? 'Failed to create chat' }, { status: 500 });
     }
-    chatId = (ins.data as { id: string }).id;
+    chatId = (ins.data as { id: string; workspace_id: string | null }).id;
+    workspaceId = (ins.data as { id: string; workspace_id: string | null }).workspace_id;
+  } else {
+    // For existing chats, read the workspace_id off the row so a stale
+    // client-side cache can't widen retrieval scope.
+    const lookup = await client.database
+      .from('chat_sessions')
+      .select('workspace_id')
+      .eq('id', chatId)
+      .single();
+    workspaceId = (lookup.data as { workspace_id: string | null } | null)?.workspace_id ?? null;
   }
 
   const lastMsg = await client.database
@@ -89,7 +104,7 @@ export async function POST(req: Request) {
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(encodeNdjson(obj));
       try {
-        const chunks = await retrieveForQuestion(client, ownerId, inputText, docIds);
+        const chunks = await retrieveForQuestion(client, ownerId, inputText, docIds, workspaceId);
         const citations = toCitations(chunks);
         send({ type: 'chat', chatId: resolvedChatId });
         send({ type: 'citations', data: citations });

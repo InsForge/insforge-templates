@@ -5,9 +5,39 @@ export type AuthViewer = {
   name: string | null;
 };
 
+export type WorkspaceRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  mindmap_markdown: string | null;
+  mindmap_generated_at: string | null;
+  audio_url: string | null;
+  audio_script: AudioScriptTurn[] | null;
+  audio_generated_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WorkspaceSummary = {
+  id: string;
+  name: string;
+  description: string | null;
+  updated_at: string;
+  document_count: number;
+  chat_count: number;
+  due_flashcard_count: number;
+};
+
+export type AudioScriptTurn = {
+  speaker: 'Sarah' | 'Mike';
+  text: string;
+};
+
 export type DocumentRow = {
   id: string;
   user_id: string;
+  workspace_id: string | null;
   file_name: string;
   file_size: number;
   mime_type: string;
@@ -23,6 +53,7 @@ export type DocumentRow = {
 export type ChatSessionRow = {
   id: string;
   user_id: string;
+  workspace_id: string | null;
   title: string;
   document_ids: string[];
   created_at: string;

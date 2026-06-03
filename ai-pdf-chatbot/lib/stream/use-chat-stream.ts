@@ -23,7 +23,12 @@ export function useChatStream() {
   const abortRef = useRef<AbortController | null>(null);
 
   const send = useCallback(
-    async (params: { input: string; chatId?: string; documentIds?: string[] }) => {
+    async (params: {
+      input: string;
+      chatId?: string;
+      documentIds?: string[];
+      workspaceId?: string | null;
+    }) => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -62,10 +67,24 @@ export function useChatStream() {
             return null;
           } else if (event.type === 'done') {
             setState({ phase: 'idle' });
+            // Tell the sidebar to refresh ONLY when a brand new chat was
+            // created. Continuing a conversation already on the list
+            // intentionally does NOT trigger a refetch even though the
+            // chat would re-sort to the top by last_message_at. Re-sorting
+            // on every assistant turn is the visual jitter the
+            // layout-hoisted sidebar (chat/layout.tsx) was introduced to
+            // fix. The trade-off is mild list staleness for a still UI,
+            // recoverable on next mount.
+            if (!params.chatId && resolvedChatId && typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('chats:changed'));
+            }
             return { chatId: resolvedChatId, content: text, citations };
           }
         }
         setState({ phase: 'idle' });
+        if (!params.chatId && resolvedChatId && typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('chats:changed'));
+        }
         return { chatId: resolvedChatId, content: text, citations };
       } catch (err) {
         if (controller.signal.aborted) {

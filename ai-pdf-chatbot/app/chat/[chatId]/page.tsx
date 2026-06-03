@@ -2,12 +2,11 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { ChatShell } from '@/components/chat-shell';
 import { ChatInput } from '@/components/chat-input';
 import { ChatMessage } from '@/components/chat-message';
-import { CitationRail } from '@/components/citation-rail';
 import { ShareChatButton } from '@/components/share-chat-button';
 import { useChatStream } from '@/lib/stream/use-chat-stream';
+import { useSetRailCitations } from '@/lib/chat/rail-context';
 import type { ChatMessageRow } from '@/lib/types';
 
 type Citation = ChatMessageRow['citations'][number];
@@ -20,6 +19,7 @@ export default function ChatDetailPage({ params }: { params: Promise<{ chatId: s
   const [chatTitle, setChatTitle] = useState<string>('');
   const [shareToken, setShareToken] = useState<string | null>(null);
   const { state, send } = useChatStream();
+  const setRailCitations = useSetRailCitations();
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/chats/${chatId}`);
@@ -59,9 +59,16 @@ export default function ChatDetailPage({ params }: { params: Promise<{ chatId: s
   const streamingText = state.phase === 'streaming' ? state.text : '';
   const streamingCitations = state.phase === 'streaming' ? state.citations : activeCitations;
 
+  // Sync the right-rail with whatever this page considers the live
+  // citation set. The layout-hosted ChatShell renders the rail from
+  // this context, so we don't return one here.
+  useEffect(() => {
+    setRailCitations(streamingCitations);
+  }, [setRailCitations, streamingCitations]);
+
   return (
-    <ChatShell activeChatId={chatId} rail={<CitationRail citations={streamingCitations} />}>
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+    <>
+      <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border px-4">
         <h2 className="min-w-0 flex-1 truncate text-sm font-medium">{chatTitle || 'Chat'}</h2>
         <ShareChatButton
           chatId={chatId}
@@ -82,6 +89,6 @@ export default function ChatDetailPage({ params }: { params: Promise<{ chatId: s
         </div>
       </div>
       <ChatInput disabled={state.phase === 'streaming'} onSubmit={handleSubmit} />
-    </ChatShell>
+    </>
   );
 }

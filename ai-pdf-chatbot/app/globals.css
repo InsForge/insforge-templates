@@ -120,6 +120,18 @@
   }
 }
 
+/*
+ * pdfjs text layer highlight for cited chunks. The text layer spans sit
+ * on top of the rendered PDF and default to transparent backgrounds, so
+ * a translucent yellow fill is enough to make the cited passage pop
+ * without obscuring the underlying glyphs.
+ */
+.rag-citation-highlight {
+  background-color: rgba(255, 213, 79, 0.55);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+}
+
 @layer utilities {
   .page-shell {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;

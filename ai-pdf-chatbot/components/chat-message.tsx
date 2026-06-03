@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 
 type Citation = ChatMessageRow['citations'][number];
 
+type OpenFn = (cite: Citation) => void;
+
 function CitationButton({
   marker,
   cite,
@@ -14,7 +16,7 @@ function CitationButton({
 }: {
   marker: number;
   cite: Citation | undefined;
-  open: (documentId: string | null | undefined, pageNumber: number | null | undefined) => void;
+  open: OpenFn;
   loading: boolean;
 }) {
   const title = cite
@@ -26,7 +28,7 @@ function CitationButton({
       type="button"
       onClick={(e) => {
         e.preventDefault();
-        if (cite?.document_id) open(cite.document_id, cite.page_number);
+        if (cite?.document_id) open(cite);
       }}
       disabled={loading || !cite?.document_id}
       title={title}
@@ -43,7 +45,7 @@ function CitationButton({
 function renderWithCitations(
   text: string,
   citations: Citation[],
-  open: (documentId: string | null | undefined, pageNumber: number | null | undefined) => void,
+  open: OpenFn,
   loadingId: string | null,
 ) {
   if (citations.length === 0) return text;

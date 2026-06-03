@@ -1,27 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FileText, Menu, MessageSquare, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { FileText, FolderOpen, Menu, MessageSquare, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { SidebarAccountBar } from '@/components/sidebar-account-bar';
+import { CitationRail } from '@/components/citation-rail';
+import { PdfDrawer } from '@/components/pdf-drawer';
+import { PdfViewerProvider } from '@/lib/pdf/viewer-context';
+import { useRailCitations } from '@/lib/chat/rail-context';
 import { authClient } from '@/lib/auth-client';
 import type { AuthViewer } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type ChatRow = { id: string; title: string; last_message_at: string };
 
-export function ChatShell({
-  activeChatId,
-  children,
-  rail,
-}: {
-  activeChatId?: string;
-  children: React.ReactNode;
-  rail: React.ReactNode;
-}) {
+export function ChatShell({ children }: { children: React.ReactNode }) {
+  // Rendered by app/chat/layout.tsx so its sidebar state survives navigation
+  // between /chat and /chat/[id]. activeChatId is derived from the URL, not
+  // a prop, and the citation rail is pulled from RailContext (pages push
+  // their citations up).
+  const pathname = usePathname();
+  const activeChatId = pathname?.startsWith('/chat/') ? pathname.split('/')[2] : undefined;
+  const railCitations = useRailCitations();
   const router = useRouter();
   const [chats, setChats] = useState<ChatRow[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -48,9 +51,18 @@ export function ChatShell({
     setChats(data.chats ?? []);
   }, []);
 
+  // Initial fetch on mount only. Re-fetching on every activeChatId change
+  // caused the entire sidebar list to flash on every chat navigation.
+  // For new chats, the stream hook dispatches a `chats:changed` event
+  // when it finishes so the sidebar updates without per-navigation churn.
   useEffect(() => {
     void loadChats();
-  }, [loadChats, activeChatId]);
+    const onChanged = () => {
+      void loadChats();
+    };
+    window.addEventListener('chats:changed', onChanged);
+    return () => window.removeEventListener('chats:changed', onChanged);
+  }, [loadChats]);
 
   // Close the mobile drawer whenever the user navigates to a new chat.
   useEffect(() => {
@@ -105,11 +117,22 @@ export function ChatShell({
 
   const sidebarBody = (
     <>
+      {/* Header strip that aligns with the chat detail page's title bar on
+          the right, so both top borders sit on the same horizontal line. */}
+      <header className="flex h-14 shrink-0 items-center border-b border-border px-4">
+        <span className="truncate text-sm font-semibold">AI PDF Chatbot</span>
+      </header>
       <div className="flex flex-1 flex-col p-3">
         <Button asChild variant="default" className="mb-3 w-full">
           <Link href="/chat">
             <Plus className="mr-1 size-4" />
             New chat
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" className="justify-start">
+          <Link href="/workspaces">
+            <FolderOpen className="mr-2 size-4" />
+            Workspaces
           </Link>
         </Button>
         <Button asChild variant="ghost" className="mb-4 justify-start">
@@ -187,13 +210,16 @@ export function ChatShell({
           ))}
         </ul>
       </div>
-      <div className="border-t border-border">
-        <SidebarAccountBar viewer={viewer} />
-      </div>
+      {/* No border-t here: the chat input on the right has its own border
+          at a different y-coordinate (because input height ≠ account bar
+          height), and putting one on the sidebar bottom too made the
+          mismatch obvious. Account bar floats as a self-contained card. */}
+      <SidebarAccountBar viewer={viewer} />
     </>
   );
 
   return (
+    <PdfViewerProvider>
     <div className="flex h-dvh overflow-hidden">
       {/* Desktop sidebar */}
       <nav className="hidden w-64 shrink-0 flex-col border-r border-border bg-card/30 md:flex">
@@ -241,9 +267,13 @@ export function ChatShell({
 
         <main className="flex min-w-0 flex-1">
           <section className="flex min-w-0 flex-1 flex-col">{children}</section>
-          {rail}
+          <CitationRail citations={railCitations} />
         </main>
       </div>
+
+      {/* Inline PDF viewer overlays the chat when a citation is opened. */}
+      <PdfDrawer />
     </div>
+    </PdfViewerProvider>
   );
 }

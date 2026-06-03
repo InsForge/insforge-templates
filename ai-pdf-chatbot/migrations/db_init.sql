@@ -6,6 +6,11 @@
 -- After this lands, `npm run auth:migrate` populates better_auth.{user,
 -- session,account,verification} via Better Auth's own Kysely migrations.
 
+-- ivfflat index creation on document_chunks.embedding needs more than the
+-- 16MB default maintenance_work_mem on InsForge cloud. Bump it for this
+-- session so `CREATE INDEX ... ivfflat` doesn't fail with "memory required".
+set maintenance_work_mem = '128MB';
+
 create extension if not exists pgcrypto;
 create extension if not exists vector;
 
@@ -27,10 +32,34 @@ $$;
 -- user_id columns are `text` because Better Auth issues string IDs (the
 -- same `sub` claim the bridge JWT carries).
 
+-- NotebookLM-style container that groups PDFs + chats + mindmap + flashcards
+-- + audio overview together. All downstream tables (documents, chat_sessions,
+-- document_flashcards) carry a nullable workspace_id so legacy rows still
+-- live under "Unsorted" until the user organizes them.
+create table if not exists public.workspaces (
+  id uuid primary key default gen_random_uuid(),
+  user_id text not null,
+  name text not null,
+  description text,
+  -- Cached LLM artifacts so the mindmap/audio surfaces don't re-bill on
+  -- every visit. Cleared by the "Regenerate" actions on each tab.
+  mindmap_markdown text,
+  mindmap_generated_at timestamptz,
+  audio_url text,
+  audio_script jsonb,
+  audio_generated_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists workspaces_user_idx
+  on public.workspaces (user_id, updated_at desc);
+
 -- A single uploaded PDF
 create table if not exists public.documents (
   id uuid primary key default gen_random_uuid(),
   user_id text not null,
+  workspace_id uuid references public.workspaces(id) on delete set null,
   file_name text not null,
   file_size integer not null,
   mime_type text not null,
@@ -47,12 +76,16 @@ create table if not exists public.documents (
 );
 
 -- Idempotent column adds for projects whose `documents` table predates
--- the summary / suggested_questions fields.
+-- the summary / suggested_questions / workspace_id fields.
 alter table public.documents add column if not exists summary text;
 alter table public.documents add column if not exists suggested_questions jsonb not null default '[]'::jsonb;
+alter table public.documents add column if not exists workspace_id uuid references public.workspaces(id) on delete set null;
 
 create index if not exists documents_user_idx
   on public.documents (user_id, created_at desc);
+
+create index if not exists documents_workspace_idx
+  on public.documents (workspace_id) where workspace_id is not null;
 
 -- A chunk of a PDF + its embedding
 create table if not exists public.document_chunks (
@@ -80,6 +113,7 @@ create index if not exists document_chunks_user_idx
 create table if not exists public.chat_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id text not null,
+  workspace_id uuid references public.workspaces(id) on delete set null,
   title text not null default 'New chat',
   document_ids uuid[] not null default '{}',
   share_token text unique,
@@ -89,11 +123,15 @@ create table if not exists public.chat_sessions (
 );
 
 alter table public.chat_sessions add column if not exists share_token text;
+alter table public.chat_sessions add column if not exists workspace_id uuid references public.workspaces(id) on delete set null;
 create unique index if not exists chat_sessions_share_token_idx
   on public.chat_sessions (share_token) where share_token is not null;
 
 create index if not exists chat_sessions_user_idx
   on public.chat_sessions (user_id, last_message_at desc);
+
+create index if not exists chat_sessions_workspace_idx
+  on public.chat_sessions (workspace_id) where workspace_id is not null;
 
 -- Chat message
 create table if not exists public.chat_messages (
@@ -112,20 +150,38 @@ create index if not exists chat_messages_chat_sort_idx
 
 -- Flashcards generated from a document. Lives in its own table so the
 -- documents row stays cheap to fetch in lists and the cards can be
--- regenerated/extended independently.
+-- regenerated/extended independently. Carries SM-2 lite SRS state so a
+-- workspace-wide review queue can pull due cards across all documents.
 create table if not exists public.document_flashcards (
   id uuid primary key default gen_random_uuid(),
   document_id uuid not null references public.documents(id) on delete cascade,
+  workspace_id uuid references public.workspaces(id) on delete set null,
   user_id text not null,
   question text not null,
   answer text not null,
   sort_order integer not null,
+  due_at timestamptz not null default now(),
+  last_grade smallint,
+  ease real not null default 2.5,
+  interval_days real not null default 0,
+  reps integer not null default 0,
   created_at timestamptz not null default now(),
   unique (document_id, sort_order)
 );
 
+-- Idempotent adds for projects whose flashcards table predates SRS state.
+alter table public.document_flashcards add column if not exists workspace_id uuid references public.workspaces(id) on delete set null;
+alter table public.document_flashcards add column if not exists due_at timestamptz not null default now();
+alter table public.document_flashcards add column if not exists last_grade smallint;
+alter table public.document_flashcards add column if not exists ease real not null default 2.5;
+alter table public.document_flashcards add column if not exists interval_days real not null default 0;
+alter table public.document_flashcards add column if not exists reps integer not null default 0;
+
 create index if not exists document_flashcards_doc_idx
   on public.document_flashcards (document_id, sort_order asc);
+
+create index if not exists document_flashcards_due_idx
+  on public.document_flashcards (user_id, due_at);
 
 -- Bump chat_sessions.last_message_at on each new message
 create or replace function public.touch_chat_session()
@@ -146,11 +202,14 @@ for each row execute function public.touch_chat_session();
 
 -- RAG retrieval (RLS-aware via explicit owner argument — text now, to
 -- match the user_id column type and the BA-bridged JWT sub claim).
+-- workspace_filter scopes retrieval to a single workspace's documents
+-- when set; doc_filter further narrows within that workspace.
 create or replace function public.match_document_chunks(
   query_embedding vector(1536),
   match_count integer,
   owner text,
-  doc_filter uuid[] default null
+  doc_filter uuid[] default null,
+  workspace_filter uuid default null
 )
 returns table (
   chunk_id uuid,
@@ -167,18 +226,27 @@ language sql stable as $$
     dc.page_number,
     1 - (dc.embedding <=> query_embedding) as similarity
   from public.document_chunks dc
+  join public.documents d on d.id = dc.document_id
   where dc.user_id = owner
     and (doc_filter is null or dc.document_id = any(doc_filter))
+    and (workspace_filter is null or d.workspace_id = workspace_filter)
   order by dc.embedding <=> query_embedding
   limit match_count;
 $$;
 
 -- RLS — policies read the BA `sub` claim through requesting_user_id().
+alter table public.workspaces enable row level security;
 alter table public.documents enable row level security;
 alter table public.document_chunks enable row level security;
 alter table public.chat_sessions enable row level security;
 alter table public.chat_messages enable row level security;
 alter table public.document_flashcards enable row level security;
+
+drop policy if exists workspaces_owner on public.workspaces;
+create policy workspaces_owner on public.workspaces
+  for all
+  using (user_id = public.requesting_user_id())
+  with check (user_id = public.requesting_user_id());
 
 drop policy if exists documents_owner on public.documents;
 create policy documents_owner on public.documents
@@ -284,3 +352,27 @@ drop policy if exists pdf_documents_owner_delete on storage.objects;
 create policy pdf_documents_owner_delete on storage.objects
   for delete to authenticated
   using (bucket = 'pdf-documents' and uploaded_by = public.requesting_user_id());
+
+-- audio-overviews bucket — generated podcast-style summaries per workspace.
+-- Public read so the <audio> tag works without a signed URL; owner-only
+-- writes/deletes so users can't poison each other's audio.
+drop policy if exists audio_overviews_public_read on storage.objects;
+create policy audio_overviews_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket = 'audio-overviews');
+
+drop policy if exists audio_overviews_owner_insert on storage.objects;
+create policy audio_overviews_owner_insert on storage.objects
+  for insert to authenticated
+  with check (bucket = 'audio-overviews' and uploaded_by = public.requesting_user_id());
+
+drop policy if exists audio_overviews_owner_delete on storage.objects;
+create policy audio_overviews_owner_delete on storage.objects
+  for delete to authenticated
+  using (bucket = 'audio-overviews' and uploaded_by = public.requesting_user_id());
+
+-- PostgREST caches the table schema on startup and does NOT auto-refresh
+-- after a freshly-imported migration. Without this notify, the SDK hits
+-- 404 ("Cannot POST /api/database/<new_table>") until the gateway is
+-- restarted. Sending NOTIFY pgrst makes the gateway reload immediately.
+notify pgrst, 'reload schema';

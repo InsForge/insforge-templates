@@ -78,13 +78,20 @@ export function ShareChatButton({
   return (
     <div className="relative" ref={popoverRef}>
       <Button
-        variant={shareToken ? 'default' : 'outline'}
+        variant="outline"
         size="sm"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
         <Link2 className="mr-1 size-4" />
         {shareToken ? 'Shared' : 'Share'}
+        {shareToken ? (
+          <span
+            aria-hidden
+            className="ml-1.5 inline-block size-1.5 rounded-full bg-emerald-500"
+            title="Sharing is on"
+          />
+        ) : null}
       </Button>
 
       {open ? (

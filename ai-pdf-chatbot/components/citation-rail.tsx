@@ -12,13 +12,13 @@ function OpenSourceButton({
   loading,
 }: {
   cite: Citation;
-  open: (documentId: string | null | undefined, pageNumber: number | null | undefined) => void;
+  open: (cite: Citation) => void;
   loading: boolean;
 }) {
   return (
     <button
       type="button"
-      onClick={() => open(cite.document_id, cite.page_number)}
+      onClick={() => open(cite)}
       disabled={loading || !cite.document_id}
       className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
     >
