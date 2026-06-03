@@ -15,16 +15,17 @@ export default async function ProductsPage({
   searchParams: Promise<{ category?: string; search?: string }>;
 }) {
   const params = await searchParams;
-  const [categories, products, authState] = await Promise.all([
+  const authState = await getCurrentAuthState();
+  const viewerId = authState.viewer.isAuthenticated ? authState.viewer.id : null;
+  const wishlistPromise = viewerId && authState.accessToken
+    ? getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
+    : Promise.resolve(new Set<string>());
+
+  const [categories, products, wishlistIds] = await Promise.all([
     getCategories(),
     getProducts({ category: params.category, search: params.search }),
-    getCurrentAuthState(),
+    wishlistPromise,
   ]);
-
-  const viewerId = authState.viewer.isAuthenticated ? authState.viewer.id : null;
-  const wishlistIds = viewerId && authState.accessToken
-    ? await getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
-    : new Set<string>();
   const showWishlist = !!viewerId;
   const activeCategory = params.category ?? null;
 

@@ -28,12 +28,17 @@ export default async function ProductDetailPage({
   }
 
   const viewerId = authState.viewer.isAuthenticated ? authState.viewer.id : null;
-  const wishlistIds = viewerId && authState.accessToken
-    ? await getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
-    : new Set<string>();
+  const wishlistPromise = viewerId && authState.accessToken
+    ? getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
+    : Promise.resolve(new Set<string>());
+
+  const [wishlistIds, allRelated] = await Promise.all([
+    wishlistPromise,
+    getProducts({ category: product.category?.slug ?? undefined }),
+  ]);
   const inWishlist = wishlistIds.has(product.id);
 
-  const relatedProducts = (await getProducts({ category: product.category?.slug ?? undefined }))
+  const relatedProducts = allRelated
     .filter((item) => item.id !== product.id)
     .slice(0, 3);
 

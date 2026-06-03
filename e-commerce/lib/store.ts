@@ -515,7 +515,15 @@ export async function addToWishlist(args: {
     .insert({ user_id: args.userId, product_id: args.productId });
 
   // Tolerate the unique-constraint conflict so toggling twice doesn't blow up.
-  if (error && !`${error.message ?? ''}`.includes('wishlists_user_product_unique')) {
+  const errorCode = (error as { code?: string } | null)?.code;
+  const errorDetails = (error as { details?: string } | null)?.details ?? '';
+  const errorMessage = error?.message ?? '';
+  const isDuplicateKey =
+    errorCode === '23505' ||
+    errorMessage.includes('wishlists_user_product_unique') ||
+    errorDetails.includes('wishlists_user_product_unique');
+
+  if (error && !isDuplicateKey) {
     assertNoDatabaseError(error, 'Unable to add to wishlist.');
   }
 }

@@ -49,7 +49,7 @@ export default async function WishlistPage() {
                         />
                         <div
                           className="absolute right-3 top-3"
-                          onClick={(e) => e.preventDefault()}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                         >
                           <WishlistButton
                             productId={item.product_id}

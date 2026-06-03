@@ -11,17 +11,18 @@ import { getCategories, getFeaturedProducts, getProducts, getWishlistProductIds 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [categories, featuredProducts, latestProducts, authState] = await Promise.all([
+  const authState = await getCurrentAuthState();
+  const viewerId = authState.viewer.isAuthenticated ? authState.viewer.id : null;
+  const wishlistPromise = viewerId && authState.accessToken
+    ? getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
+    : Promise.resolve(new Set<string>());
+
+  const [categories, featuredProducts, latestProducts, wishlistIds] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
     getProducts(),
-    getCurrentAuthState(),
+    wishlistPromise,
   ]);
-
-  const viewerId = authState.viewer.isAuthenticated ? authState.viewer.id : null;
-  const wishlistIds = viewerId && authState.accessToken
-    ? await getWishlistProductIds({ accessToken: authState.accessToken, userId: viewerId })
-    : new Set<string>();
   const showWishlist = !!viewerId;
 
   return (
