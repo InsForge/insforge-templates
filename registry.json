@@ -70,7 +70,7 @@
     "description": "Multi-user SaaS admin with workspace invites, sortable tables, real-time chat, charts, and a Composio-powered apps grid that pushes tasks to a chosen channel with two clicks. Vite + React + InsForge auth, database, RLS, storage, and realtime.",
     "category": "admin",
     "framework": "react",
-    "features": ["auth", "database", "storage", "realtime", "composio", "outbound-actions"],
+    "features": ["TanStack Table", "Recharts", "Real-time Chat", "Auth", "Composio Integrations", "Outbound Actions"],
     "tags": ["admin", "dashboard", "shadcn", "tanstack-table", "workspace", "saas", "composio", "oauth"],
     "cover": "assets/covers/admin-dashboard.png",
     "demo_url": "https://admindashboard.insforge.site",
