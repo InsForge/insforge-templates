@@ -8,7 +8,7 @@ import { insforge } from '@/lib/insforge'
 import { useAuth } from '@/lib/auth-context'
 import { ensureWorkspace } from '@/features/auth/ensure-workspace'
 import { useWorkspaceStore } from '@/features/workspaces/workspace-store'
-import { Github } from 'lucide-react'
+import { OAuthProviderIcon } from '@/components/oauth-provider-icon'
 
 export const Route = createFileRoute('/(auth)/sign-in')({
   component: SignInPage,
@@ -91,10 +91,10 @@ function SignInPage() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" type="button" onClick={() => onOAuth('google')}>
-            Google
+            <OAuthProviderIcon provider="google" className="mr-2 h-4 w-4" /> Google
           </Button>
           <Button variant="outline" type="button" onClick={() => onOAuth('github')}>
-            <Github className="mr-2 h-4 w-4" /> GitHub
+            <OAuthProviderIcon provider="github" className="mr-2 h-4 w-4" /> GitHub
           </Button>
         </div>
         <p className="text-center text-sm text-muted-foreground">
