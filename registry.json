@@ -14,8 +14,8 @@
   },
   {
     "slug": "landing",
-    "name": "SaaS Landing",
-    "description": "Convert visitors before you've written a single API route. Dark-mode SaaS landing with pricing, FAQ, and a waitlist that actually stores signups.",
+    "name": "Launchpad",
+    "description": "Tell visitors what you're shipping before you've shipped it. Interactive product preview with tab-switching scenes, animated KPIs, pricing toggle, and a waitlist that writes straight to your database. Drop your copy in and launch.",
     "category": "marketing",
     "framework": "nextjs",
     "features": ["Waitlist Capture", "Pricing Page", "shadcn/ui", "Auth"],
