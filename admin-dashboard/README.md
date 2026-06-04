@@ -27,7 +27,7 @@ A polished, end-to-end admin dashboard starter built with Vite, TanStack Router/
 
 Demo: [admindashboard.insforge.site](https://admindashboard.insforge.site)
 
-Sign up or sign in to get a personal workspace, then explore. Every page is hooked to live InsForge data — there is no mock layer.
+Sign up or sign in to get a personal workspace, then explore. Every page is hooked to live InsForge data. The Apps page renders out of the box with Stripe and OpenRouter wired to the InsForge dashboard; the seven Composio-backed integrations (GitHub, Slack, Notion, Discord, Figma, Linear, Vercel) appear as "Setup required" until you provision Composio (see [Connecting third-party apps](#connecting-third-party-apps)).
 
 ---
 
@@ -148,6 +148,12 @@ The `/apps` page lists every integration available to a workspace. Two kinds:
 
 - **InsForge-native** (Stripe, OpenRouter) — configured in the InsForge dashboard. The card opens the corresponding dashboard page in a new tab.
 - **Composio-backed** (GitHub, Notion, Slack, Discord, Figma, Linear, Vercel) — connected per workspace via Composio's hosted OAuth.
+
+### Default behavior without Composio
+
+Out of the box, the `/apps` page works with zero third-party setup: Stripe and OpenRouter cards deep-link to the InsForge dashboard, and the seven Composio cards render with a disabled **Connect** button and a "Setup required" label. A banner at the top points to this section. Follow the steps below to switch any of the seven on.
+
+The detection is per-toolkit: only the ones whose `COMPOSIO_AUTH_CONFIG_*` secret you provision become connectable. The rest stay disabled.
 
 ### One-time Composio setup
 

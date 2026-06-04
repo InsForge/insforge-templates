@@ -125,6 +125,17 @@ export function AppsGrid({
                     )}
                   </Button>
                 </>
+              ) : !app.is_available ? (
+                <>
+                  <span className="text-xs text-muted-foreground">Coming soon</span>
+                  <Button
+                    size="sm"
+                    disabled
+                    aria-label={`${app.name} coming soon`}
+                  >
+                    Connect
+                  </Button>
+                </>
               ) : (
                 <>
                   <span className="text-xs text-muted-foreground">Not connected</span>

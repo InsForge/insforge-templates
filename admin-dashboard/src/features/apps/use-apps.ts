@@ -45,6 +45,7 @@ export type AppWithConnection = {
   oss_dashboard_path: string | null
   connected: boolean
   account_label: string | null
+  is_available: boolean
 }
 
 export const appsKey = (workspaceId: string | undefined) => ['apps', workspaceId] as const
@@ -89,6 +90,7 @@ export function useApps(workspaceId: string | undefined) {
           oss_dashboard_path: OSS_DEEP_LINKS[app.slug] ?? null,
           connected: !!conn,
           account_label: conn?.config_json?.account_label ?? null,
+          is_available: app.integration_kind === 'insforge_native',
         }
       })
     },

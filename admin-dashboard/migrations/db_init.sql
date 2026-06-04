@@ -611,11 +611,11 @@ create trigger messages_realtime
 -- ============================================================================
 
 insert into public.apps_catalog (slug, name, description, icon_url, integration_kind, composio_toolkit_slug, display_order) values
-  ('stripe',     'Stripe',     'Accept payments, manage subscriptions, and view revenue.',     'https://cdn.simpleicons.org/stripe',     'insforge_native', null,      1),
-  ('openrouter', 'OpenRouter', 'Unified API for 100+ AI models, with usage analytics.',         'https://cdn.simpleicons.org/openrouter', 'insforge_native', null,      2),
-  ('github',     'GitHub',     'Sync issues, manage releases, and trigger workflows.',          'https://cdn.simpleicons.org/github',     'composio',        'github',  3),
-  ('notion',     'Notion',     'Embed docs, capture notes, and link knowledge bases.',          'https://cdn.simpleicons.org/notion',     'composio',        'notion',  4),
-  ('slack',      'Slack',      'Get notifications and respond to events without leaving Slack.','https://cdn.simpleicons.org/slack',      'composio',        'slack',   5),
+  ('slack',      'Slack',      'Get notifications and respond to events without leaving Slack.','https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/slack.svg','composio',        'slack',   1),
+  ('stripe',     'Stripe',     'Accept payments, manage subscriptions, and view revenue.',     'https://cdn.simpleicons.org/stripe',     'insforge_native', null,      2),
+  ('openrouter', 'OpenRouter', 'Unified API for 100+ AI models, with usage analytics.',         'https://cdn.simpleicons.org/openrouter', 'insforge_native', null,      3),
+  ('github',     'GitHub',     'Sync issues, manage releases, and trigger workflows.',          'https://cdn.simpleicons.org/github',     'composio',        'github',  4),
+  ('notion',     'Notion',     'Embed docs, capture notes, and link knowledge bases.',          'https://cdn.simpleicons.org/notion',     'composio',        'notion',  5),
   ('discord',    'Discord',    'Bridge community channels into your workspace.',                'https://cdn.simpleicons.org/discord',    'composio',        'discord', 6),
   ('figma',      'Figma',      'Link design files and surface comments inline.',                'https://cdn.simpleicons.org/figma',      'composio',        'figma',   7),
   ('linear',     'Linear',     'Track issues, ship faster, and keep tasks in sync.',            'https://cdn.simpleicons.org/linear',     'composio',        'linear',  8),
