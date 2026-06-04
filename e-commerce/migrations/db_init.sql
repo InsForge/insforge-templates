@@ -558,6 +558,95 @@ begin
 end;
 $$;
 
+-- handle_payment_succeeded runs from the InsForge webhook projection.
+-- When payments.payment_history receives a succeeded one_time_payment row,
+-- the trigger looks up the matching checkout_sessions.metadata.order_id and
+-- promotes the app's public.orders row to paid + confirmed + processing,
+-- decrements inventory, converts the cart, and writes timeline events.
+create or replace function public.handle_payment_succeeded()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, payments
+as $$
+declare
+  v_order_id uuid;
+  v_user_id uuid;
+  v_cart_id uuid;
+begin
+  if NEW.type <> 'one_time_payment' or NEW.status <> 'succeeded' then
+    return NEW;
+  end if;
+
+  if NEW.stripe_checkout_session_id is null then
+    return NEW;
+  end if;
+
+  select (cs.metadata->>'order_id')::uuid
+  into v_order_id
+  from payments.checkout_sessions cs
+  where cs.stripe_checkout_session_id = NEW.stripe_checkout_session_id
+  limit 1;
+
+  if v_order_id is null then
+    return NEW;
+  end if;
+
+  update public.orders
+  set status = 'confirmed',
+      payment_status = 'paid',
+      fulfillment_status = 'processing',
+      stripe_checkout_session_id = NEW.stripe_checkout_session_id,
+      stripe_payment_intent_id = NEW.stripe_payment_intent_id,
+      updated_at = now()
+  where id = v_order_id
+    and payment_status <> 'paid'
+  returning user_id into v_user_id;
+
+  if v_user_id is null then
+    return NEW;
+  end if;
+
+  update public.products p
+  set inventory_count = greatest(0, p.inventory_count - oi.quantity),
+      updated_at = now()
+  from public.order_items oi
+  where oi.order_id = v_order_id
+    and oi.variant_id is null
+    and p.id = oi.product_id;
+
+  update public.product_variants pv
+  set inventory_count = greatest(0, pv.inventory_count - oi.quantity),
+      updated_at = now()
+  from public.order_items oi
+  where oi.order_id = v_order_id
+    and oi.variant_id is not null
+    and pv.id = oi.variant_id;
+
+  select id into v_cart_id from public.shopping_carts
+  where user_id = v_user_id and status = 'active'
+  order by updated_at desc limit 1;
+
+  if v_cart_id is not null then
+    update public.shopping_carts set status = 'converted', updated_at = now()
+    where id = v_cart_id;
+  end if;
+
+  insert into public.order_status_events (order_id, user_id, event_type, message)
+  values
+    (v_order_id, v_user_id, 'payment_succeeded', 'Payment confirmed via Stripe'),
+    (v_order_id, v_user_id, 'fulfillment_processing', 'Order is being prepared');
+
+  return NEW;
+end;
+$$;
+
+drop trigger if exists on_payment_history_succeeded on payments.payment_history;
+create trigger on_payment_history_succeeded
+after insert or update on payments.payment_history
+for each row
+execute function public.handle_payment_succeeded();
+
 drop trigger if exists categories_set_updated_at on public.categories;
 create trigger categories_set_updated_at
 before update on public.categories

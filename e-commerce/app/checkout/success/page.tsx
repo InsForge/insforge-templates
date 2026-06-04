@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { finalizeOrderAction } from '@/lib/store-actions';
+import { pollOrderPaymentAction } from '@/lib/store-actions';
 import { Button } from '@/components/ui/button';
 
 const POLL_INTERVAL_MS = 1500;
@@ -13,7 +13,6 @@ function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
-  const sessionId = searchParams.get('session_id');
 
   const [status, setStatus] = useState<'polling' | 'paid' | 'timeout' | 'error'>('polling');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -21,9 +20,9 @@ function CheckoutSuccessContent() {
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!orderId || !sessionId) {
+    if (!orderId) {
       setStatus('error');
-      setErrorMsg('Missing order or session identifier.');
+      setErrorMsg('Missing order identifier.');
       return;
     }
 
@@ -32,7 +31,7 @@ function CheckoutSuccessContent() {
 
     async function poll() {
       try {
-        const result = await finalizeOrderAction({ orderId: orderId!, stripeSessionId: sessionId! });
+        const result = await pollOrderPaymentAction({ orderId: orderId! });
         if (cancelled) return;
         if (result.paid) {
           setStatus('paid');
@@ -47,7 +46,7 @@ function CheckoutSuccessContent() {
       } catch (err) {
         if (cancelled) return;
         setStatus('error');
-        setErrorMsg(err instanceof Error ? err.message : 'Unable to finalize order.');
+        setErrorMsg(err instanceof Error ? err.message : 'Unable to confirm payment.');
       }
     }
 
@@ -57,7 +56,7 @@ function CheckoutSuccessContent() {
       if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
     };
-  }, [orderId, sessionId, router]);
+  }, [orderId, router]);
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-6 text-center">

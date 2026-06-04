@@ -10,7 +10,7 @@ import {
   createAddress,
   createCheckoutSessionForOrder,
   deleteSavedAddress,
-  finalizeOrderForUser,
+  getOrderPaymentState,
   placeOrderForUser,
   removeCartItem,
   setDefaultSavedAddress,
@@ -133,12 +133,12 @@ export async function setDefaultAddressAction(
   revalidatePath('/checkout');
 }
 
-export async function finalizeOrderAction(payload: { orderId: string; stripeSessionId: string }) {
-  const { accessToken } = await requireSession();
-  const result = await finalizeOrderForUser({
+export async function pollOrderPaymentAction(payload: { orderId: string }) {
+  const { viewer, accessToken } = await requireSession();
+  const result = await getOrderPaymentState({
     accessToken,
+    userId: viewer.id,
     orderId: payload.orderId,
-    stripeSessionId: payload.stripeSessionId,
   });
   if (result.paid) {
     revalidatePath('/account/orders');

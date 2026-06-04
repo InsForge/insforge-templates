@@ -757,35 +757,24 @@ export async function createCheckoutSessionForOrder(args: {
   return session.checkoutSession.url;
 }
 
-export async function finalizeOrderForUser(args: {
+export async function getOrderPaymentState(args: {
   accessToken: string;
+  userId: string;
   orderId: string;
-  stripeSessionId: string;
 }) {
   const insforge = getInsforge(args.accessToken);
+  const { data: order, error } = await insforge.database
+    .from('orders')
+    .select('*')
+    .eq('id', args.orderId)
+    .eq('user_id', args.userId)
+    .maybeSingle();
 
-  const { data: paymentRow, error: payErr } = await insforge.database
-    .from('payments.checkout_sessions')
-    .select('payment_status, stripe_payment_intent_id')
-    .eq('stripe_checkout_session_id', args.stripeSessionId)
-    .single();
-
-  assertNoDatabaseError(payErr, 'Unable to verify payment.');
-
-  if (!paymentRow || paymentRow.payment_status !== 'paid') {
-    return { paid: false as const };
-  }
-
-  const { data: order, error } = await insforge.database.rpc('finalize_order', {
-    p_order_id: args.orderId,
-    p_stripe_session_id: args.stripeSessionId,
-    p_payment_intent_id: paymentRow.stripe_payment_intent_id ?? null,
-    p_discount_code: null,
-    p_discount_cents: 0,
-  });
-
-  assertNoDatabaseError(error, 'Unable to finalize order.');
-  return { paid: true as const, order: order as Order };
+  assertNoDatabaseError(error, 'Unable to load order.');
+  if (!order) return { paid: false as const, order: null };
+  return order.payment_status === 'paid'
+    ? { paid: true as const, order: order as Order }
+    : { paid: false as const, order: order as Order };
 }
 
 export async function getOrders(args: {
