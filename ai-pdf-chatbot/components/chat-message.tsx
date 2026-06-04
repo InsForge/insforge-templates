@@ -1,9 +1,53 @@
+'use client';
+
+import { useOpenCitation } from '@/lib/hooks/use-open-citation';
 import type { ChatMessageRow } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type Citation = ChatMessageRow['citations'][number];
 
-function renderWithCitations(text: string, citations: Citation[]) {
+type OpenFn = (cite: Citation) => void;
+
+function CitationButton({
+  marker,
+  cite,
+  open,
+  loading,
+}: {
+  marker: number;
+  cite: Citation | undefined;
+  open: OpenFn;
+  loading: boolean;
+}) {
+  const title = cite
+    ? `${cite.file_name}${cite.page_number ? `, page ${cite.page_number}` : ''} — click to open`
+    : undefined;
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        if (cite?.document_id) open(cite);
+      }}
+      disabled={loading || !cite?.document_id}
+      title={title}
+      className={cn(
+        'mx-0.5 inline-flex items-center rounded-md bg-accent/15 px-1.5 py-0.5 text-xs font-medium text-accent transition hover:bg-accent/25',
+        loading && 'opacity-50',
+      )}
+    >
+      [{marker}]
+    </button>
+  );
+}
+
+function renderWithCitations(
+  text: string,
+  citations: Citation[],
+  open: OpenFn,
+  loadingId: string | null,
+) {
   if (citations.length === 0) return text;
   const parts: Array<string | { marker: number; key: string }> = [];
   const regex = /\[(\d+)\]/g;
@@ -20,14 +64,13 @@ function renderWithCitations(text: string, citations: Citation[]) {
     if (typeof p === 'string') return <span key={`t-${i}`}>{p}</span>;
     const cite = citations.find((c) => c.marker === p.marker);
     return (
-      <a
+      <CitationButton
         key={p.key}
-        href={`#citation-${p.marker}`}
-        title={cite ? `${cite.file_name}${cite.page_number ? `, page ${cite.page_number}` : ''}` : undefined}
-        className="mx-0.5 inline-flex items-center rounded-md bg-accent/15 px-1.5 py-0.5 text-xs font-medium text-accent hover:bg-accent/25"
-      >
-        [{p.marker}]
-      </a>
+        marker={p.marker}
+        cite={cite}
+        open={open}
+        loading={loadingId === cite?.document_id}
+      />
     );
   });
 }
@@ -43,6 +86,7 @@ export function ChatMessage({
   citations?: Citation[];
   isStreaming?: boolean;
 }) {
+  const { open, loadingId } = useOpenCitation();
   return (
     <div className={cn('flex w-full gap-3', role === 'user' ? 'justify-end' : 'justify-start')}>
       <div
@@ -51,7 +95,7 @@ export function ChatMessage({
           role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card/70 text-foreground',
         )}
       >
-        {role === 'assistant' ? renderWithCitations(content, citations) : content}
+        {role === 'assistant' ? renderWithCitations(content, citations, open, loadingId) : content}
         {isStreaming ? <span className="ml-1 inline-block size-2 animate-pulse rounded-full bg-current align-baseline" /> : null}
       </div>
     </div>

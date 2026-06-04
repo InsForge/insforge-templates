@@ -17,6 +17,18 @@ export async function POST(req: Request) {
 
   const formData = await req.formData();
   const file = formData.get('file');
+  const rawWorkspaceId = formData.get('workspaceId');
+  // Validate the client-supplied workspace id format up-front so a bad
+  // value returns a 400 instead of leaking a 500 from a downstream
+  // `invalid input syntax for type uuid` Postgres error.
+  const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  let workspaceId: string | null = null;
+  if (typeof rawWorkspaceId === 'string' && rawWorkspaceId) {
+    if (!UUID_RE.test(rawWorkspaceId)) {
+      return NextResponse.json({ error: 'workspaceId must be a UUID' }, { status: 400 });
+    }
+    workspaceId = rawWorkspaceId;
+  }
   if (!(file instanceof File)) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
@@ -33,6 +45,7 @@ export async function POST(req: Request) {
     .from('documents')
     .insert({
       user_id: auth.viewer.id,
+      workspace_id: workspaceId,
       file_name: file.name,
       file_size: file.size,
       mime_type: file.type,
@@ -69,6 +82,7 @@ export async function POST(req: Request) {
   const ingestResult = await ingestPdf(client, {
     userId: auth.viewer.id,
     documentId: doc.id,
+    fileName: file.name,
     buffer,
   });
 

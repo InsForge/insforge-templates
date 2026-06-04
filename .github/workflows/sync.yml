@@ -1,4 +1,4 @@
-name: Sync Registry to Cloud-Backend
+name: Sync Registry to TemplateMarket
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   sync:
-    name: POST /admin/v1/templates/sync
+    name: POST /functions/sync-templates
     runs-on: ubuntu-latest
     steps:
       - name: Trigger sync
@@ -24,7 +24,7 @@ jobs:
           curl -fSs -X POST \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
-            "https://api.insforge.dev/admin/v1/templates/sync" \
+            "https://p8n7m7ci.us-east.insforge.app/functions/sync-templates" \
             -d "{\"commit_sha\":\"$SHA\"}"
           echo
           echo "Sync completed for commit $SHA"

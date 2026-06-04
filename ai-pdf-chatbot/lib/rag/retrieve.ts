@@ -14,6 +14,7 @@ export async function retrieveForQuestion(
   ownerId: string,
   question: string,
   documentIds?: string[],
+  workspaceId?: string | null,
 ): Promise<RetrievedChunk[]> {
   const [embedding] = await embedTexts(client, [question]);
 
@@ -31,6 +32,7 @@ export async function retrieveForQuestion(
     match_count: MATCH_CHUNK_COUNT,
     owner: ownerId,
     doc_filter: documentIds && documentIds.length > 0 ? documentIds : null,
+    workspace_filter: workspaceId ?? null,
   });
 
   if (rpcRes.error) throw new Error(rpcRes.error.message ?? 'Vector search failed');

@@ -1,8 +1,10 @@
 import 'server-only';
 import type { createClient } from '@insforge/sdk';
+import { after } from 'next/server';
 import { parsePdf } from '@/lib/pdf/parse';
 import { chunkPages } from '@/lib/pdf/chunk';
 import { embedTexts } from '@/lib/ai/embeddings';
+import { generateDocumentInsights } from '@/lib/ai/document-insights';
 
 type InsforgeClient = ReturnType<typeof createClient>;
 
@@ -15,10 +17,11 @@ export async function ingestPdf(
   params: {
     userId: string;
     documentId: string;
+    fileName: string;
     buffer: ArrayBuffer | Uint8Array;
   },
 ): Promise<IngestResult> {
-  const { userId, documentId, buffer } = params;
+  const { userId, documentId, fileName, buffer } = params;
   try {
     const { pages, pageCount } = await parsePdf(buffer);
     const chunks = chunkPages(pages);
@@ -60,6 +63,29 @@ export async function ingestPdf(
       .insert(rows);
 
     if (insertError) throw new Error(insertError.message ?? 'Insert failed');
+
+    // Auto-summary + suggested questions runs AFTER the response is
+    // sent. `next/server`'s `after()` keeps the runtime alive on
+    // serverless platforms (Vercel etc.) so the LLM call + DB update
+    // can finish — a plain `void promise.then()` would be cut by the
+    // function-context termination. Failure is non-fatal: the doc is
+    // still queryable for chat, only the "skim help" stays empty.
+    const fullText = pages.map((p) => p.text).join('\n\n');
+    after(
+      generateDocumentInsights(client, fileName, fullText)
+        .then(async ({ summary, questions }) => {
+          if (!summary && questions.length === 0) return;
+          await client.database
+            .from('documents')
+            .update({
+              ...(summary ? { summary } : {}),
+              ...(questions.length > 0 ? { suggested_questions: questions } : {}),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', documentId);
+        })
+        .catch(() => undefined),
+    );
 
     await markDocument(client, documentId, {
       status: 'ready',

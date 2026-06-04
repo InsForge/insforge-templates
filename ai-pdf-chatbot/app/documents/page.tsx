@@ -9,11 +9,13 @@ import { DocumentUploader } from '@/components/document-uploader';
 
 type DocRow = {
   id: string;
+  workspace_id: string | null;
   file_name: string;
   file_size: number;
   status: 'processing' | 'ready' | 'failed';
   error: string | null;
   page_count: number | null;
+  summary: string | null;
   created_at: string;
 };
 
@@ -31,6 +33,17 @@ export default function DocumentsPage() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // While any document is still ingesting, poll every 3s so the badge flips
+  // ready/failed automatically without a manual reload. Stops once all
+  // documents reach a terminal state.
+  useEffect(() => {
+    if (!docs.some((d) => d.status === 'processing')) return;
+    const id = setInterval(() => {
+      void refresh();
+    }, 3000);
+    return () => clearInterval(id);
+  }, [docs, refresh]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">

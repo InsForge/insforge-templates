@@ -34,8 +34,19 @@ export const hero = {
   secondaryCta: { label: 'View live demo', href: '#features' },
 };
 
-export const logoCloud = {
+export type Stat = { value: number; prefix?: string; suffix?: string; decimals?: number; label: string };
+
+export const logoCloud: {
+  heading: string;
+  stats: Stat[];
+  logos: { name: string; src: string }[];
+} = {
   heading: 'Trusted by teams shipping with Acme',
+  stats: [
+    { value: 5000, suffix: '+', label: 'teams using Acme' },
+    { value: 200, suffix: 'M', label: 'events ingested / week' },
+    { value: 99.99, suffix: '%', decimals: 2, label: 'uptime over the last year' },
+  ],
   logos: [
     { name: 'GitHub', src: '/logos/github.svg' },
     { name: 'Vercel', src: '/logos/vercel.svg' },

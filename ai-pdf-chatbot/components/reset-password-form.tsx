@@ -4,173 +4,122 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { exchangeResetCode, resetPassword, sendResetEmail } from '@/lib/auth-actions';
+import { authClient } from '@/lib/auth-client';
 
-export function ResetPasswordForm({
-  resetPasswordMethod = 'code',
-}: {
-  resetPasswordMethod?: string;
-}) {
+// Two-stage flow:
+//   1. /auth/reset-password (no token) — request stage. User enters email,
+//      BA sends a link to /auth/reset-password?token=<...>
+//   2. /auth/reset-password?token=<...> — completion stage. User enters
+//      a new password; authClient.resetPassword finalizes.
+export function ResetPasswordForm({ token }: { token: string | null }) {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [token, setToken] = useState('');
-  const [step, setStep] = useState<'email' | 'code' | 'password' | 'link-sent'>('email');
+  const [linkSent, setLinkSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const usesLinkReset = resetPasswordMethod.toLowerCase() === 'link';
 
-  async function handleSendEmail(e: React.FormEvent) {
+  async function handleSendLink(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await sendResetEmail(email.trim());
+    const origin =
+      process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
+      (typeof window === 'undefined' ? '' : window.location.origin);
 
-    if (result.success) {
-      setStep(usesLinkReset ? 'link-sent' : 'code');
-      toast.success(
-        usesLinkReset ? 'Check your email for a reset link.' : 'Check your email for a reset code.',
-      );
-    } else {
-      toast.error(result.error);
+    const { error } = await authClient.requestPasswordReset({
+      email: email.trim(),
+      redirectTo: `${origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      toast.error(error.message ?? 'Failed to send reset email');
+      setIsLoading(false);
+      return;
     }
 
+    setLinkSent(true);
     setIsLoading(false);
+    toast.success('Check your email for a reset link.');
   }
 
-  async function handleVerifyCode(e: React.FormEvent) {
+  async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault();
+    if (!token) return;
     setIsLoading(true);
 
-    const result = await exchangeResetCode(email.trim(), code.trim());
+    const { error } = await authClient.resetPassword({
+      newPassword,
+      token,
+    });
 
-    if (result.success) {
-      setToken(result.token);
-      setStep('password');
-    } else {
-      toast.error(result.error);
+    if (error) {
+      toast.error(error.message ?? 'Password reset failed');
+      setIsLoading(false);
+      return;
     }
 
-    setIsLoading(false);
+    toast.success('Password reset. Please sign in.');
+    window.location.href = '/auth/sign-in';
   }
 
-  async function handleResetPassword(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const result = await resetPassword(newPassword, token);
-
-    if (result.success) {
-      toast.success('Password reset successfully. Please sign in.');
-      window.location.href = '/auth/sign-in';
-    } else {
-      toast.error(result.error);
-    }
-
-    setIsLoading(false);
-  }
-
-  if (step === 'email') {
+  if (token) {
     return (
-      <form className="space-y-4" onSubmit={handleSendEmail}>
+      <form className="space-y-4" onSubmit={handleSetPassword}>
         <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">Email</label>
+          <label className="text-sm font-medium" htmlFor="newPassword">New password</label>
           <input
-            id="email"
-            type="email"
+            id="newPassword"
+            type="password"
             required
-            autoComplete="email"
+            minLength={8}
+            autoComplete="new-password"
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter new password (8+ characters)"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
         </div>
         <Button className="w-full" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : usesLinkReset ? (
-            'Send reset link'
-          ) : (
-            'Send reset code'
-          )}
+          {isLoading ? <Loader2 className="size-4 animate-spin" /> : 'Reset password'}
         </Button>
       </form>
     );
   }
 
-  if (step === 'link-sent') {
+  if (linkSent) {
     return (
       <div className="space-y-6">
         <p className="text-sm text-muted-foreground">
-          We sent a password reset link to <span className="font-medium text-foreground">{email}</span>.
+          We sent a reset link to <span className="font-medium text-foreground">{email}</span>.
+          Open it on this device to choose a new password.
         </p>
-        <Button className="w-full" onClick={() => (window.location.href = '/auth/sign-in')} type="button">
-          Go to sign in
+        <Button
+          className="w-full"
+          type="button"
+          onClick={() => (window.location.href = '/auth/sign-in')}
+        >
+          Back to sign in
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
-          Didn&apos;t receive the email?{' '}
-          <button
-            type="button"
-            className="text-foreground underline-offset-4 hover:underline"
-            onClick={() => {
-              setStep('email');
-              setIsLoading(false);
-            }}
-          >
-            Try again
-          </button>
-        </p>
-      </div>
-    );
-  }
-
-  if (step === 'code') {
-    return (
-      <div className="space-y-6">
-        <p className="text-sm text-muted-foreground">
-          We sent a code to <span className="font-medium text-foreground">{email}</span>.
-        </p>
-        <form className="space-y-4" onSubmit={handleVerifyCode}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="code">Reset code</label>
-            <input
-              id="code"
-              type="text"
-              required
-              inputMode="numeric"
-              maxLength={6}
-              autoComplete="one-time-code"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-center text-lg tracking-widest placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              placeholder="000000"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            />
-          </div>
-          <Button className="w-full" type="submit" disabled={isLoading || code.length < 6}>
-            {isLoading ? <Loader2 className="size-4 animate-spin" /> : 'Verify code'}
-          </Button>
-        </form>
       </div>
     );
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleResetPassword}>
+    <form className="space-y-4" onSubmit={handleSendLink}>
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="newPassword">New password</label>
+        <label className="text-sm font-medium" htmlFor="email">Email</label>
         <input
-          id="newPassword"
-          type="password"
+          id="email"
+          type="email"
           required
-          autoComplete="new-password"
+          autoComplete="email"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </div>
       <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? <Loader2 className="size-4 animate-spin" /> : 'Reset password'}
+        {isLoading ? <Loader2 className="size-4 animate-spin" /> : 'Send reset link'}
       </Button>
     </form>
   );

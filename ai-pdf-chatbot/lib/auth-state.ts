@@ -1,7 +1,8 @@
 import 'server-only';
 
-import { getAccessToken, getRefreshToken } from '@/lib/auth-cookies';
-import { createInsforgeServerClient } from '@/lib/insforge';
+import jwt from 'jsonwebtoken';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 import type { AuthViewer } from '@/lib/types';
 
 const VISITOR_VIEWER: AuthViewer = {
@@ -11,68 +12,36 @@ const VISITOR_VIEWER: AuthViewer = {
   name: null,
 };
 
-function buildViewer(user: { id: string; email?: string; name?: string }): AuthViewer {
-  return {
-    isAuthenticated: true,
-    id: user.id,
-    email: user.email ?? null,
-    name: user.name ?? null,
-  };
-}
-
-async function refreshAuthenticatedUser(refreshToken: string) {
-  const insforge = createInsforgeServerClient();
-  const { data, error } = await insforge.auth.refreshSession({ refreshToken });
-  if (error || !data?.accessToken || !data?.refreshToken || !data.user) return null;
-  return {
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    user: data.user,
-  };
-}
-
+// Server-side read of the current viewer + a freshly-minted HS256 bridge
+// JWT to authenticate downstream InsForge calls. The route consumers
+// pattern-match `auth.viewer.isAuthenticated`, `auth.viewer.id`, and
+// `auth.accessToken` — keep those fields stable.
 export async function getCurrentAuthState(): Promise<{
   viewer: AuthViewer;
   accessToken: string | null;
-  refreshToken: string | null;
-  refreshedAccessToken: string | null;
-  refreshedRefreshToken: string | null;
 }> {
-  const accessToken = await getAccessToken();
-  const refreshToken = await getRefreshToken();
-
-  if (accessToken) {
-    const insforge = createInsforgeServerClient({ accessToken });
-    const { data, error } = await insforge.auth.getCurrentUser();
-    if (!error && data.user) {
-      return {
-        viewer: buildViewer(data.user),
-        accessToken,
-        refreshToken,
-        refreshedAccessToken: null,
-        refreshedRefreshToken: null,
-      };
-    }
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return { viewer: VISITOR_VIEWER, accessToken: null };
   }
 
-  if (refreshToken) {
-    const refreshed = await refreshAuthenticatedUser(refreshToken);
-    if (refreshed) {
-      return {
-        viewer: buildViewer(refreshed.user),
-        accessToken: refreshed.accessToken,
-        refreshToken: refreshed.refreshToken,
-        refreshedAccessToken: refreshed.accessToken,
-        refreshedRefreshToken: refreshed.refreshToken,
-      };
-    }
-  }
+  const accessToken = jwt.sign(
+    {
+      sub: session.user.id,
+      role: 'authenticated',
+      aud: 'insforge-api',
+    },
+    process.env.INSFORGE_JWT_SECRET!,
+    { algorithm: 'HS256', expiresIn: '1h' },
+  );
 
   return {
-    viewer: VISITOR_VIEWER,
-    accessToken: null,
-    refreshToken,
-    refreshedAccessToken: null,
-    refreshedRefreshToken: null,
+    viewer: {
+      isAuthenticated: true,
+      id: session.user.id,
+      email: session.user.email ?? null,
+      name: session.user.name ?? null,
+    },
+    accessToken,
   };
 }

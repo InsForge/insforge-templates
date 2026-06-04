@@ -7,7 +7,16 @@ import { Button } from '@/components/ui/button';
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
-export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
+// workspaceId, when provided, attaches the uploaded document to that
+// workspace immediately. Used by the workspace detail page; the global
+// /documents page passes nothing so uploads land in "Unsorted".
+export function DocumentUploader({
+  onUploaded,
+  workspaceId,
+}: {
+  onUploaded: () => void;
+  workspaceId?: string | null;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -24,6 +33,7 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
     try {
       const fd = new FormData();
       fd.append('file', file);
+      if (workspaceId) fd.append('workspaceId', workspaceId);
       const res = await fetch('/api/documents/upload', { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Upload failed');

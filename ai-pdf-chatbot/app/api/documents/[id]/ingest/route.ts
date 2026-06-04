@@ -17,7 +17,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const docRes = await client.database
     .from('documents')
-    .select('id, storage_bucket, storage_key, user_id')
+    .select('id, storage_bucket, storage_key, user_id, file_name')
     .eq('id', id)
     .single();
 
@@ -25,7 +25,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: 'Document not found' }, { status: 404 });
   }
 
-  const doc = docRes.data as { id: string; storage_bucket: string; storage_key: string; user_id: string };
+  const doc = docRes.data as { id: string; storage_bucket: string; storage_key: string; user_id: string; file_name: string };
 
   await client.database
     .from('documents')
@@ -41,6 +41,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const result = await ingestPdf(client, {
     userId: doc.user_id,
     documentId: doc.id,
+    fileName: doc.file_name,
     buffer,
   });
 
