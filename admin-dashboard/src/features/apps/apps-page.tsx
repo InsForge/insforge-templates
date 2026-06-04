@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Info } from 'lucide-react'
+import { AlertTriangle, Info } from 'lucide-react'
 import { useActiveWorkspace } from '@/features/dashboard/use-active-workspace'
 import { useApps } from './use-apps'
 import { useAppsConfig } from './use-apps-config'
@@ -13,7 +13,7 @@ const COMPOSIO_SETUP_URL =
 export function AppsPage() {
   const { workspace } = useActiveWorkspace()
   const { data: apps = [], isLoading } = useApps(workspace?.id)
-  const { data: appsConfig, isLoading: isConfigLoading } = useAppsConfig()
+  const { data: appsConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useAppsConfig()
   const connect = useConnectApp(workspace?.id)
   const disconnect = useDisconnectApp(workspace?.id)
 
@@ -27,7 +27,7 @@ export function AppsPage() {
   }, [apps, appsConfig])
 
   const showSetupBanner =
-    !isConfigLoading && apps.length > 0 && !appsConfig?.composio_enabled
+    !isConfigLoading && !isConfigError && apps.length > 0 && !appsConfig?.composio_enabled
 
   const isConnectPending = (slug: string) =>
     connect.isPending && connect.variables?.app.slug === slug
@@ -42,6 +42,27 @@ export function AppsPage() {
           Connect integrations to extend {workspace?.name ?? 'your workspace'}.
         </p>
       </div>
+      {isConfigError && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />
+          <div className="flex-1">
+            <p className="font-medium">Couldn't load app integration status</p>
+            <p className="text-muted-foreground">
+              Connect/disconnect actions may not work until this resolves.
+            </p>
+            <button
+              type="button"
+              onClick={() => void refetchConfig()}
+              className="mt-1 inline-block font-medium underline-offset-4 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
       {showSetupBanner && (
         <div
           role="status"

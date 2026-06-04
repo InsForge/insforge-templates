@@ -29,6 +29,12 @@ const PRIORITY_LABEL: Record<string, string> = {
   high: 'High',
 }
 
+// Slack mrkdwn treats &, <, > as control chars (mentions, links). Escape any
+// user-controlled text so a task titled "<!channel>" can't blast a channel.
+function escapeSlack(text: string) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 function formatMessage(task: {
   title: string
   description: string | null
@@ -37,12 +43,12 @@ function formatMessage(task: {
   due_date: string | null
 }) {
   const lines: string[] = []
-  lines.push(`*${task.title}*`)
+  lines.push(`*${escapeSlack(task.title)}*`)
   lines.push(
     `${STATUS_LABEL[task.status] ?? task.status} · ${PRIORITY_LABEL[task.priority] ?? task.priority}` +
-      (task.due_date ? ` · due ${task.due_date}` : ''),
+      (task.due_date ? ` · due ${escapeSlack(task.due_date)}` : ''),
   )
-  if (task.description) lines.push('', task.description.slice(0, 500))
+  if (task.description) lines.push('', escapeSlack(task.description.slice(0, 500)))
   return lines.join('\n')
 }
 
@@ -86,12 +92,12 @@ export default async function handler(req: Request): Promise<Response> {
     .eq('workspace_id', workspace_id)
     .eq('app_slug', 'slack')
     .single()
-  if (connErr || !connRow) return err(409, 'slack_not_connected')
+  if (connErr || !connRow) return err(404, 'slack_not_connected')
   if (connRow.status !== 'connected') return err(409, 'slack_not_connected')
 
   const connectedAccountId = (connRow.config_json as { connected_account_id?: string })
     ?.connected_account_id
-  if (!connectedAccountId) return err(409, 'slack_not_connected')
+  if (!connectedAccountId) return err(404, 'slack_not_connected')
 
   const composioApiKey = Deno.env.get('COMPOSIO_API_KEY')
   if (!composioApiKey) return err(500, 'composio_api_key_missing')

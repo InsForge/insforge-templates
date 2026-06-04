@@ -16,4 +16,9 @@ on conflict (slug) do update set
   description = excluded.description,
   display_order = excluded.display_order;
 
+-- Defensive: remove any connections for the slugs we are about to drop so the
+-- FK cascade has nothing left to silently destroy. Stripe/OpenRouter never
+-- supported composio OAuth, so this should be a no-op on fresh installs; Zapier
+-- was a placeholder catalog entry that didn't ship a working flow.
+delete from public.app_connections where app_slug in ('zapier', 'stripe', 'openrouter');
 delete from public.apps_catalog where slug in ('zapier', 'stripe', 'openrouter');

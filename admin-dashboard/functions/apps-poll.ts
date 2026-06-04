@@ -42,6 +42,13 @@ export default async function handler(req: Request): Promise<Response> {
   const { request_id, app_slug, workspace_id } = body
   if (!request_id || !app_slug || !workspace_id) return err(400, 'missing_fields')
 
+  const { data: appRow, error: appErr } = await client.database
+    .from('apps_catalog')
+    .select('slug')
+    .eq('slug', app_slug)
+    .single()
+  if (appErr || !appRow) return err(404, 'app_not_found', appErr?.message)
+
   const composioApiKey = Deno.env.get('COMPOSIO_API_KEY')
   if (!composioApiKey) return err(500, 'composio_api_key_missing')
 

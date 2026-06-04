@@ -6,8 +6,6 @@ export type AppsConfig = {
   configured_toolkits: string[]
 }
 
-const FALLBACK: AppsConfig = { composio_enabled: false, configured_toolkits: [] }
-
 export const appsConfigKey = ['apps-config'] as const
 
 export function useAppsConfig() {
@@ -17,7 +15,7 @@ export function useAppsConfig() {
       const { data, error } = await insforge.functions.invoke('apps-config', {
         method: 'GET',
       })
-      if (error) return FALLBACK
+      if (error) throw new Error(error.message ?? 'Failed to load apps config')
       const cfg = data as Partial<AppsConfig> | null
       return {
         composio_enabled: !!cfg?.composio_enabled,
@@ -27,5 +25,6 @@ export function useAppsConfig() {
       }
     },
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   })
 }

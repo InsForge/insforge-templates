@@ -55,10 +55,19 @@ export default async function handler(req: Request): Promise<Response> {
   if (composioId) {
     const composioApiKey = Deno.env.get('COMPOSIO_API_KEY')
     if (composioApiKey) {
-      await fetch(
-        `https://backend.composio.dev/api/v3/connected_accounts/${encodeURIComponent(composioId)}`,
-        { method: 'DELETE', headers: { 'x-api-key': composioApiKey } },
-      ).catch(() => {})
+      try {
+        const revokeRes = await fetch(
+          `https://backend.composio.dev/api/v3/connected_accounts/${encodeURIComponent(composioId)}`,
+          { method: 'DELETE', headers: { 'x-api-key': composioApiKey } },
+        )
+        if (!revokeRes.ok && revokeRes.status !== 404) {
+          console.warn(
+            `composio revoke failed: ${composioId} status=${revokeRes.status} body=${await revokeRes.text()}`,
+          )
+        }
+      } catch (e) {
+        console.warn(`composio revoke threw: ${composioId} err=${(e as Error).message}`)
+      }
     }
   }
 

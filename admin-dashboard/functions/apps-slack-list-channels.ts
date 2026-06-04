@@ -54,7 +54,7 @@ export default async function handler(req: Request): Promise<Response> {
 
   const connectedAccountId = (connRow.config_json as { connected_account_id?: string })
     ?.connected_account_id
-  if (!connectedAccountId) return err(409, 'slack_not_connected')
+  if (!connectedAccountId) return err(404, 'slack_not_connected')
 
   const composioApiKey = Deno.env.get('COMPOSIO_API_KEY')
   if (!composioApiKey) return err(500, 'composio_api_key_missing')
@@ -67,7 +67,7 @@ export default async function handler(req: Request): Promise<Response> {
       body: JSON.stringify({
         user_id: workspace_id,
         connected_account_id: connectedAccountId,
-        arguments: { limit: 200, exclude_archived: true, types: 'public_channel,private_channel' },
+        arguments: { limit: 1000, exclude_archived: true, types: 'public_channel,private_channel' },
       }),
     },
   )
