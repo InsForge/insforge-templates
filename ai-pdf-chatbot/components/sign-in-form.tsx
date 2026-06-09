@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth-client';
+import posthog from 'posthog-js';
 
 export function SignInForm() {
   const [email, setEmail] = useState('');
@@ -15,17 +16,21 @@ export function SignInForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await authClient.signIn.email({
+    const { data, error } = await authClient.signIn.email({
       email: email.trim(),
       password,
     });
 
     if (error) {
       toast.error(error.message ?? 'Sign in failed');
+      posthog.captureException(new Error(error.message ?? 'Sign in failed'));
       setIsLoading(false);
       return;
     }
 
+    const userId = (data as { user?: { id?: string } } | null)?.user?.id ?? email.trim();
+    posthog.identify(userId, { email: email.trim() });
+    posthog.capture('user_signed_in', { email: email.trim() });
     window.location.href = '/chat';
   }
 

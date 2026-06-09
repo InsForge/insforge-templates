@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2, RefreshCw, Sparkles, X } from 'luci
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import posthog from 'posthog-js';
 
 type Card = { id: string; question: string; answer: string; sort_order: number };
 
@@ -49,9 +50,11 @@ export function FlashcardsModal({
         toast.error(data.error ?? 'Failed to generate flashcards');
         return;
       }
-      setCards(data.flashcards ?? []);
+      const cards = data.flashcards ?? [];
+      setCards(cards);
       setIndex(0);
       setRevealed(false);
+      posthog.capture('flashcards_generated', { document_id: documentId, card_count: cards.length });
     } catch {
       toast.error('Failed to generate flashcards');
     } finally {

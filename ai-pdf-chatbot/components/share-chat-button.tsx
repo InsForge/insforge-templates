@@ -4,6 +4,7 @@ import { Check, Copy, Link2, Loader2, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import posthog from 'posthog-js';
 
 export function ShareChatButton({
   chatId,
@@ -56,6 +57,11 @@ export function ShareChatButton({
       const next = data.chat?.share_token ?? null;
       setShareToken(next);
       onShareTokenChange?.(next);
+      if (enable) {
+        posthog.capture('chat_share_link_created', { chat_id: chatId });
+      } else {
+        posthog.capture('chat_share_link_revoked', { chat_id: chatId });
+      }
       toast.success(enable ? 'Share link created' : 'Share link revoked');
     } catch {
       toast.error('Failed to update share state');

@@ -5,6 +5,7 @@ import { retrieveForQuestion, toCitations } from '@/lib/rag/retrieve';
 import { RAG_SYSTEM_PROMPT, buildUserPrompt } from '@/lib/ai/prompts';
 import { CHAT_MODEL } from '@/lib/ai/constants';
 import { encodeNdjson } from '@/lib/stream/ndjson';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -99,6 +100,19 @@ export async function POST(req: Request) {
   const resolvedChatId = chatId;
   const inputText = body.input.trim();
   const docIds = body.documentIds;
+  const isNewChat = !body.chatId;
+
+  const posthog = getPostHogClient();
+  posthog.capture({
+    distinctId: ownerId,
+    event: 'chat_message_sent',
+    properties: {
+      chat_id: resolvedChatId,
+      workspace_id: workspaceId,
+      is_new_chat: isNewChat,
+    },
+  });
+  await posthog.shutdown();
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {

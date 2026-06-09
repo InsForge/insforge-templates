@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createInsforgeServerClient } from '@/lib/insforge';
 import { getCurrentAuthState } from '@/lib/auth-state';
 import { UTILITY_MODEL } from '@/lib/ai/constants';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -89,6 +90,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     .update({ mindmap_markdown: markdown, mindmap_generated_at: now, updated_at: now })
     .eq('id', id);
   if (upd.error) return NextResponse.json({ error: upd.error.message }, { status: 500 });
+
+  const posthog = getPostHogClient();
+  posthog.capture({
+    distinctId: auth.viewer.id ?? 'anonymous',
+    event: 'mindmap_generated',
+    properties: { workspace_id: id, workspace_name: ws.name, document_count: docs.length },
+  });
+  await posthog.shutdown();
 
   return NextResponse.json({ markdown, generated_at: now });
 }
