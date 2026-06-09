@@ -57,7 +57,9 @@ export async function POST(req: Request) {
     event: 'workspace_created',
     properties: { workspace_id: ws.id, workspace_name: name },
   });
-  await posthog.shutdown();
+  // Analytics flush failure must not surface as a 500 for the user;
+  // the write above already succeeded. Swallow the error.
+  await posthog.shutdown().catch(() => undefined);
 
   return NextResponse.json({ workspace: data });
 }

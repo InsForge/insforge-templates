@@ -105,7 +105,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     event: 'audio_overview_generated',
     properties: { workspace_id: id, workspace_name: ws.name, document_count: docs.length, script_turn_count: script.length },
   });
-  await posthog.shutdown();
+  // Analytics flush failure must not surface as a 500 for the user;
+  // the write above already succeeded. Swallow the error.
+  await posthog.shutdown().catch(() => undefined);
 
   return NextResponse.json({ audio_url: audioUrl, script, generated_at: now });
 }

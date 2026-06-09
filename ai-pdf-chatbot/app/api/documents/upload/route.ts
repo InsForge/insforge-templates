@@ -100,7 +100,9 @@ export async function POST(req: Request) {
       chunk_count: ingestResult.status === 'ready' ? ingestResult.chunkCount : 0,
     },
   });
-  await posthog.shutdown();
+  // Analytics flush failure must not surface as a 500 for the user;
+  // the write above already succeeded. Swallow the error.
+  await posthog.shutdown().catch(() => undefined);
 
   return NextResponse.json({
     document: { id: doc.id, file_name: file.name, file_size: file.size, status: ingestResult.status },

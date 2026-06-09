@@ -112,7 +112,9 @@ export async function POST(req: Request) {
       is_new_chat: isNewChat,
     },
   });
-  await posthog.shutdown();
+  // Analytics flush failure must not surface as a 500 for the user;
+  // the write above already succeeded. Swallow the error.
+  await posthog.shutdown().catch(() => undefined);
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {

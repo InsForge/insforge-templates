@@ -66,7 +66,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       reps: next.reps,
     },
   });
-  await posthog.shutdown();
+  // Analytics flush failure must not surface as a 500 for the user;
+  // the write above already succeeded. Swallow the error.
+  await posthog.shutdown().catch(() => undefined);
 
   return NextResponse.json({
     ok: true,
