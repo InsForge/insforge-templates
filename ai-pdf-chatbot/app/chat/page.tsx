@@ -41,6 +41,9 @@ function ChatHomePageInner() {
   const [pendingInput, setPendingInput] = useState<string | null>(null);
   const [citations] = useState<Citation[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  // null = still loading. NotebookLM-style gating: with no ready docs the
+  // chat input is disabled and the empty state points at upload instead.
+  const [hasReadyDocs, setHasReadyDocs] = useState<boolean | null>(null);
   const setRailCitations = useSetRailCitations();
 
   // Pull a few suggested questions from the most recently uploaded, ready
@@ -54,8 +57,10 @@ function ChatHomePageInner() {
       if (!res.ok) return;
       const data = (await res.json()) as { documents: DocSummaryRow[] };
       if (cancelled) return;
-      const newest = data.documents?.find(
-        (d) => d.status === 'ready' && Array.isArray(d.suggested_questions) && d.suggested_questions.length > 0,
+      const ready = (data.documents ?? []).filter((d) => d.status === 'ready');
+      setHasReadyDocs(ready.length > 0);
+      const newest = ready.find(
+        (d) => Array.isArray(d.suggested_questions) && d.suggested_questions.length > 0,
       );
       setSuggestions(newest?.suggested_questions ?? []);
     })();
@@ -96,9 +101,16 @@ function ChatHomePageInner() {
         ) : (
           <div className="mx-auto flex max-w-xl flex-col items-center justify-center gap-6 py-12 text-center">
             <h1 className="font-display text-4xl">Chat with your PDFs</h1>
-            <p className="text-sm text-muted-foreground">
-              Upload a PDF on the <a className="underline" href="/documents">documents page</a>, then ask a question here.
-            </p>
+            {hasReadyDocs === false ? (
+              <p className="text-sm text-muted-foreground">
+                No PDFs yet. <a className="font-medium underline" href="/documents">Upload one on the documents page</a> to
+                start asking questions; chat unlocks as soon as a document finishes indexing.
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Upload a PDF on the <a className="underline" href="/documents">documents page</a>, then ask a question here.
+              </p>
+            )}
 
             {suggestions.length > 0 ? (
               <div className="w-full space-y-3">
@@ -123,7 +135,10 @@ function ChatHomePageInner() {
           </div>
         )}
       </div>
-      <ChatInput disabled={state.phase === 'streaming'} onSubmit={handleSubmit} />
+      <ChatInput
+        disabled={state.phase === 'streaming' || hasReadyDocs === false}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 }

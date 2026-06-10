@@ -119,10 +119,80 @@ export async function POST(req: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const send = (obj: unknown) => controller.enqueue(encodeNdjson(obj));
+      // Streams a canned assistant message (no LLM call), persists it,
+      // and closes the stream. Used for the guidance paths below where
+      // retrieval has nothing to offer and an LLM round-trip would only
+      // produce a less helpful refusal.
+      const finishWithGuidance = async (text: string) => {
+        send({ type: 'citations', data: [] });
+        send({ type: 'delta', text });
+        await client.database.from('chat_messages').insert({
+          chat_id: resolvedChatId,
+          role: 'assistant',
+          content: text,
+          sort_order: nextOrder + 1,
+          citations: [],
+        });
+        send({ type: 'done' });
+        controller.close();
+      };
+
       try {
-        const chunks = await retrieveForQuestion(client, ownerId, inputText, docIds, workspaceId);
-        const citations = toCitations(chunks);
         send({ type: 'chat', chatId: resolvedChatId });
+
+        // Look up the ready documents in scope first. If there are none,
+        // the user is asking into a void: guide them to upload instead of
+        // letting the model say "I couldn't find that".
+        let docsQuery = client.database
+          .from('documents')
+          .select('file_name, suggested_questions')
+          .eq('status', 'ready');
+        if (workspaceId) docsQuery = docsQuery.eq('workspace_id', workspaceId);
+        const docsRes = await docsQuery;
+        if (docsRes.error) {
+          // A failed lookup must not masquerade as "no documents" — that
+          // would tell a user with perfectly good PDFs to go upload again.
+          // Log the real error server-side; the stream error payload goes
+          // to the client, so keep it generic.
+          console.error('[chat] documents lookup failed:', docsRes.error.message);
+          throw new Error('Failed to load documents');
+        }
+        const readyDocs = (docsRes.data ?? []) as Array<{
+          file_name: string;
+          suggested_questions: string[] | null;
+        }>;
+
+        if (readyDocs.length === 0) {
+          await finishWithGuidance(
+            workspaceId
+              ? "This workspace doesn't have any ready PDFs yet. Open the workspace's Documents tab, upload a PDF (up to 10 MB), and ask me again once it finishes indexing."
+              : "You haven't uploaded any PDFs yet. Head to the Documents page, upload a PDF (up to 10 MB), and ask me again once it finishes indexing.",
+          );
+          return;
+        }
+
+        const chunks = await retrieveForQuestion(client, ownerId, inputText, docIds, workspaceId);
+
+        if (chunks.length === 0) {
+          // Vector search came back empty (rare). Tell the user what IS
+          // available and reuse the cached per-document suggested
+          // questions as concrete next steps.
+          const names = readyDocs
+            .slice(0, 5)
+            .map((d) => d.file_name)
+            .join(', ');
+          const suggestions = readyDocs
+            .flatMap((d) => (Array.isArray(d.suggested_questions) ? d.suggested_questions : []))
+            .slice(0, 3);
+          let guidance = `I couldn't find anything relevant to that in your documents (${names}).`;
+          if (suggestions.length > 0) {
+            guidance += ` Try asking something like: ${suggestions.map((q) => `"${q}"`).join(' or ')}`;
+          }
+          await finishWithGuidance(guidance);
+          return;
+        }
+
+        const citations = toCitations(chunks);
         send({ type: 'citations', data: citations });
 
         const contextString = chunks

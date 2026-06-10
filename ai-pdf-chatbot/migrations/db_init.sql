@@ -101,10 +101,15 @@ create table if not exists public.document_chunks (
   unique (document_id, chunk_index)
 );
 
-create index if not exists document_chunks_embedding_idx
+-- HNSW, not ivfflat: ivfflat with lists=100 partitions vectors into 100
+-- clusters and probes 1 by default, which collapses recall to near zero
+-- when a user only has a handful of chunks (typical here: one PDF, 6-300
+-- chunks per user). HNSW has no cluster count to mistune and holds 95%+
+-- recall at any collection size.
+drop index if exists document_chunks_embedding_idx;
+create index if not exists document_chunks_embedding_hnsw_idx
   on public.document_chunks
-  using ivfflat (embedding vector_cosine_ops)
-  with (lists = 100);
+  using hnsw (embedding vector_cosine_ops);
 
 create index if not exists document_chunks_user_idx
   on public.document_chunks (user_id);
