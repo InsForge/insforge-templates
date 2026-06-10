@@ -149,6 +149,11 @@ export async function POST(req: Request) {
           .eq('status', 'ready');
         if (workspaceId) docsQuery = docsQuery.eq('workspace_id', workspaceId);
         const docsRes = await docsQuery;
+        if (docsRes.error) {
+          // A failed lookup must not masquerade as "no documents" — that
+          // would tell a user with perfectly good PDFs to go upload again.
+          throw new Error(docsRes.error.message ?? 'Failed to load documents');
+        }
         const readyDocs = (docsRes.data ?? []) as Array<{
           file_name: string;
           suggested_questions: string[] | null;
