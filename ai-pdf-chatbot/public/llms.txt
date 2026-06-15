@@ -1,0 +1,23 @@
+# AI Notebook
+
+> AI Notebook is an open-source, self-hosted study workspace for PDFs: upload documents into workspaces and get RAG chat with citations that highlight the exact passage inside the source PDF, auto-generated mindmaps, spaced-repetition flashcards, and NotebookLM-style two-host audio overviews. Built with Next.js, pgvector, and InsForge.
+
+AI Notebook is an InsForge template: developers fork it as a starting point for their own PDF / study / knowledge-base products. It is the open-source alternative to NotebookLM-style tools, with your data on your own infrastructure and any model via OpenRouter.
+
+## Product
+
+- [Live demo](https://aipdfchat.insforge.site): sign up with any email, upload a PDF, ask a question.
+- [Source code](https://github.com/InsForge/insforge-templates/tree/main/ai-pdf-chatbot): MIT-licensed Next.js app.
+- [Template marketplace](https://insforge.dev/templates): one-command scaffold via `npx @insforge/cli create`.
+
+## Key features
+
+- Workspaces: NotebookLM-style containers grouping PDFs, chats, mindmaps, flashcards, and audio.
+- RAG chat with inline citations: every answer cites sources; clicking a citation opens the PDF at the cited page with the passage highlighted.
+- Mindmaps: workspace-wide concept tree generated from document summaries, rendered with Markmap.
+- Spaced-repetition flashcards: SM-2 lite scheduler with a per-workspace review queue.
+- Audio Overview: two-host podcast summary of a workspace, generated with OpenAI TTS (opt-in).
+
+## Stack
+
+- Next.js App Router, Better Auth, InsForge (Postgres + pgvector + storage + AI gateway), react-pdf, Markmap.
